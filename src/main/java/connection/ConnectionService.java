@@ -1,4 +1,4 @@
 package connection;
 
-public class connectionService implements connectionServiceI{
+public class ConnectionService implements ConnectionServiceI{
 }
