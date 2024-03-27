@@ -1,6 +1,6 @@
 package pieces;
 
-public enum Color {
+public enum PieceColor {
 
     BLUE,
     RED
