@@ -15,13 +15,19 @@ public class SessionService implements SessionServiceI {
         if(!overlap) this.board.setField(y,x,piece);
     }
 
-    public void setPieces(Board playerBoard, Player owner){
-        if(owner == playerBlue || owner == playerRed){
-            this.board.setBoard(playerBoard);
-        }
+    public void setPieces(Board playerBoard){
+        this.board.setBoard(playerBoard);
     }
 
     public boolean checkOverlap(int y, int x){
         return this.board.getField(y,x) != null;
+    }
+
+    public Player getPlayerBlue(){
+        return this.playerBlue;
+    }
+
+    public Player getPlayerRed(){
+        return this.playerRed;
     }
 }
