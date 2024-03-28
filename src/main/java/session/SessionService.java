@@ -12,7 +12,7 @@ public class SessionService implements SessionServiceI {
 
     public void updateBoard(int y, int x, Piece piece){
         boolean overlap = checkOverlap(y,x);
-        this.board.setField(y,x,piece);
+        if(!overlap) this.board.setField(y,x,piece);
     }
 
     public void setPieces(Board playerBoard, Player owner){
