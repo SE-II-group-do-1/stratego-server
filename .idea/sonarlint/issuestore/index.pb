@@ -13,3 +13,9 @@ Q
 !src/main/java/session/Player.java,6\0\603c4f5db8e31cd51270beb219d80be671c52e85
 P
  src/main/java/session/Piece.java,3\b\3b29c1c94b1844434ae087f3863bf9edca0f80d5
+`
+0src/test/java/SessionServiceTests/BoardTest.java,e\8\e8f5d47bbeba116b8db18936101d13bf144dda6c
+a
+1src/test/java/SessionServiceTests/PlayerTest.java,c\d\cdd1b43b9cfa5864ca3493a7822298b20ad6f5cf
+i
+9src/test/java/SessionServiceTests/SessionServiceTest.java,f\5\f50931512a9145604a016a4d880c35fe1de6029f
