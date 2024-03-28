@@ -19,3 +19,5 @@ a
 1src/test/java/SessionServiceTests/PlayerTest.java,c\d\cdd1b43b9cfa5864ca3493a7822298b20ad6f5cf
 i
 9src/test/java/SessionServiceTests/SessionServiceTest.java,f\5\f50931512a9145604a016a4d880c35fe1de6029f
+O
+src/main/java/session/Rank.java,5\2\5251b128224c82b61038a41161840f55112d3ac0
