@@ -1,7 +1,7 @@
 package session;
 
 public class SessionService implements SessionServiceI {
-    private Player playerBlue;
+    private final Player playerBlue;
     private Player playerRed;
     private Board board;
 
@@ -11,7 +11,7 @@ public class SessionService implements SessionServiceI {
     }
 
     public void updateBoard(int y, int x, Piece piece){
-        checkOverlap();
+        boolean overlap = checkOverlap(y,x);
         this.board.setField(y,x,piece);
     }
 
@@ -21,7 +21,7 @@ public class SessionService implements SessionServiceI {
         }
     }
 
-    public void checkOverlap(){
-
+    public boolean checkOverlap(int y, int x){
+        return this.board.getField(y,x) != null;
     }
 }

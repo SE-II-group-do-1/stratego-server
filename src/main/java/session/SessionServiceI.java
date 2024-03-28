@@ -4,5 +4,5 @@ public interface SessionServiceI {
     void updateBoard(int y, int x, Piece piece);
 
     void checkOverlap();
-    void setPieces();
+    void setPieces(Board playerBoard, Player owner);
 }
