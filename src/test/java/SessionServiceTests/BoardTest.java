@@ -8,7 +8,7 @@ import session.Rank;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BoardTest {
+class BoardTest {
     Board testBoard;
 
     @BeforeEach
