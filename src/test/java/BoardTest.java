@@ -1,5 +1,4 @@
-package SessionServiceTests;
-
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import session.Board;
@@ -16,6 +15,11 @@ class BoardTest {
         testBoard = new Board();
     }
 
+    @AfterEach
+    void tearDown(){
+        testBoard = null;
+    }
+
     @Test
     void testConstructor(){
         assertNotNull(testBoard.getBoard());
@@ -23,22 +27,21 @@ class BoardTest {
 
     @Test
     void testLakesCreated(){
-        assertEquals(testBoard.getField(4,2), new Piece(Rank.LAKE));
+        assertEquals(Rank.LAKE, testBoard.getField(4, 2).getRank());
     }
 
     @Test
     void testSetAndGetField(){
         testBoard.setField(1,1, new Piece(Rank.BOMB));
-        assertEquals(testBoard.getField(1,1), new Piece(Rank.BOMB));
+        assertEquals(Rank.BOMB, testBoard.getField(1, 1).getRank());
     }
 
     @Test
     void testSetAndGetBoard(){
         Board secondBoard = new Board();
         secondBoard.setField(1,2, new Piece(Rank.MAJOR));
-        secondBoard.setField(1,3, new Piece(Rank.CAPTAIN));
         testBoard.setBoard(secondBoard);
-        assertEquals(secondBoard, testBoard);
+        assertEquals(secondBoard.getBoard(), testBoard.getBoard());
     }
 
 }

@@ -29,8 +29,8 @@ public class Board {
 
     public void setBoard(Board newBoard){
         Piece[][] newFields = newBoard.getBoard();
-        for(int y=0; y<=10;y++){
-            for(int x=0; x<=10; x++){
+        for(int y=0; y<10;y++){
+            for(int x=0; x<10; x++){
                 if(newFields[y][x] != null) this.fields[y][x] = newFields[y][x];
             }
         }
