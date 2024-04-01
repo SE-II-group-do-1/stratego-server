@@ -1,7 +1,5 @@
 package session;
 
-import java.util.concurrent.ExecutionException;
-
 public class SessionService implements SessionServiceI {
     private final Player playerBlue;
     private Player playerRed;

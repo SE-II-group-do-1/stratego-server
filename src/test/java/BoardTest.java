@@ -41,7 +41,8 @@ class BoardTest {
         Board secondBoard = new Board();
         secondBoard.setField(1,2, new Piece(Rank.MAJOR));
         testBoard.setBoard(secondBoard);
-        assertEquals(secondBoard.getBoard(), testBoard.getBoard());
+        assertArrayEquals(secondBoard.getBoard(), testBoard.getBoard());
+
     }
 
 }
