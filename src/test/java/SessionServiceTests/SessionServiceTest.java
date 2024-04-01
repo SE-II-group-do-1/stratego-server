@@ -1,15 +1,15 @@
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import session.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SessionServiceTest {
 
     SessionService session;
     Player testPlayer;
 
-    @Test
+    @BeforeEach
     void setup(){
         testPlayer = new Player(1, "1");
         session = new SessionService(testPlayer);
@@ -33,6 +33,6 @@ class SessionServiceTest {
         Board testBoard = new Board();
         testBoard.setField(3,4, new Piece(Rank.FLAG));
         session.setPieces(testBoard);
-        assertEquals();
+        assertArrayEquals(testBoard.getBoard(), session.getBoard().getBoard());
     }
 }
