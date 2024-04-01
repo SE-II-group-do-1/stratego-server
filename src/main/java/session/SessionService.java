@@ -53,4 +53,12 @@ public class SessionService implements SessionServiceI {
     public Player getPlayerRed(){
         return this.playerRed;
     }
+
+    public void setPlayerRed(Player newPlayer){
+        this.playerRed = newPlayer;
+    }
+
+    public Board getBoard(){
+        return this.board;
+    }
 }
