@@ -35,4 +35,10 @@ class SessionServiceTest {
         session.setPieces(testBoard);
         assertArrayEquals(testBoard.getBoard(), session.getBoard().getBoard());
     }
+
+    @Test
+    void testUpdateBoard(){
+        session.updateBoard(2,3, new Piece(Rank.GENERAL));
+        assertEquals(Rank.GENERAL, session.getBoard().getField(2, 3).getRank());
+    }
 }
