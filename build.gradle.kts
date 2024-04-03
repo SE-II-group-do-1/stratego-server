@@ -11,6 +11,10 @@ repositories {
     mavenCentral()
 }
 
+jacoco {
+    toolVersion = "0.8.11"
+}
+
 sonar {
   properties {
     property("sonar.projectKey", "SE-II-group-do-1_stratego-server")
@@ -31,4 +35,12 @@ tasks.test {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    reports {
+            html.apply {
+                isEnabled = true
+            }
+            xml.apply {
+                isEnabled = true
+            }
+        }
 }
