@@ -23,7 +23,5 @@ O
 src/main/java/session/Rank.java,5\2\5251b128224c82b61038a41161840f55112d3ac0
 @
 build.gradle.kts,d\b\dbcff70658daf80b53ce624f6adcaa529df5ed8d
-L
-src/test/java/BoardTest.java,7\6\76307125669d6463d2d2979e648bdd726c0176ff
 K
 .github/workflows/build.yml,f\e\fe77d5d1439f26e353a42bbd38dece2467ff6558

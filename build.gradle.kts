@@ -31,16 +31,17 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+    testLogging {
+            events("passed", "skipped", "failed")
+    }
 }
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
     reports {
-            html.apply {
-                isEnabled = true
-            }
-            xml.apply {
-                isEnabled = true
-            }
-        }
+        xml.required.set(true)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
 }
