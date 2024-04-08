@@ -1,6 +1,8 @@
 plugins {
     id("java")
     id("org.sonarqube") version "4.4.1.3373"
+    id("org.springframework.boot") version "3.2.4"
+    id("io.spring.dependency-management") version "1.1.4"
     jacoco
 }
 
@@ -27,8 +29,9 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-api")
+    implementation("org.springframework.boot:spring-boot-starter-websocket")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
-
 tasks.test {
     useJUnitPlatform()
     finalizedBy(tasks.jacocoTestReport)
@@ -37,8 +40,8 @@ tasks.test {
     }
 }
 
+
 tasks.jacocoTestReport {
-    dependsOn(tasks.test)
     reports {
         xml.required.set(true)
         csv.required.set(false)
