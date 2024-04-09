@@ -1,4 +1,4 @@
-package session;
+package com.example.stratego.session;
 
 import java.util.Objects;
 

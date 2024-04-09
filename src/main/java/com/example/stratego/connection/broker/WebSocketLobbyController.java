@@ -3,7 +3,7 @@ package com.example.stratego.connection.broker;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
-import session.Player;
+import com.example.stratego.session.Player;
 
 import java.util.List;
 import java.util.ArrayList;

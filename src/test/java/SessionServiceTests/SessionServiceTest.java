@@ -1,6 +1,8 @@
+package SessionServiceTests;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import session.*;
+import com.example.stratego.session.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
