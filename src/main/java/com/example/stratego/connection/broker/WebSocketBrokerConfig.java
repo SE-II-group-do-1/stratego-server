@@ -1,4 +1,4 @@
-package com.example.stratego.websocket.broker;
+package com.example.stratego.connection.broker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Configuration;
