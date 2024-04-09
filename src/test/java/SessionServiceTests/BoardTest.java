@@ -1,9 +1,9 @@
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import session.Board;
-import session.Piece;
-import session.Rank;
+import com.example.stratego.session.Board;
+import com.example.stratego.session.Piece;
+import com.example.stratego.session.Rank;
 
 import static org.junit.jupiter.api.Assertions.*;
 
