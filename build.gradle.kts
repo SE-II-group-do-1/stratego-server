@@ -13,6 +13,10 @@ repositories {
     mavenCentral()
 }
 
+jacoco {
+    toolVersion = "0.8.11"
+}
+
 sonar {
   properties {
     property("sonar.projectKey", "SE-II-group-do-1_stratego-server")
@@ -30,4 +34,17 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+    testLogging {
+            events("passed", "skipped", "failed")
+    }
+}
+
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
 }
