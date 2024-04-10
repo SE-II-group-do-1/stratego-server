@@ -24,7 +24,6 @@ sonar {
     property("sonar.host.url", "https://sonarcloud.io")
     property("sonar.coverage.exclusions", "src/main/java/com/example/stratego_server/connection,")
   }
-  }
 }
 
 dependencies {
