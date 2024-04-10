@@ -17,7 +17,7 @@
 <div id="lobby"></div>
 
 <script>
-    var socket = new SockJS('http://localhost:53216/ws');
+    var socket = new SockJS('http://se2-demo.aau.at:53216/ws');
     var stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function (frame) {
