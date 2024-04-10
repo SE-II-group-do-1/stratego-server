@@ -22,6 +22,8 @@ sonar {
     property("sonar.projectKey", "SE-II-group-do-1_stratego-server")
     property("sonar.organization", "se-ii-group-do-1")
     property("sonar.host.url", "https://sonarcloud.io")
+    property("sonar.coverage.exclusions", "src/main/java/com/example/stratego_server/connection,")
+  }
   }
 }
 
