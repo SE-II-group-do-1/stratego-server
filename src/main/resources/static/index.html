@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Lobby Example</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.5.1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+
+<h1>WebSocket Lobby Example</h1>
+
+<input type="text" id="playerId" placeholder="Enter your id">
+<input type="text" id="playerUsername" placeholder="Enter your username">
+<button onclick="joinLobby()">Join Lobby</button>
+
+<div id="lobby"></div>
+
+<script>
+    var socket = new SockJS('http://se2-demo.aau.at:53216/ws');
+    var stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/topic/lobby', function (message) {
+            showLobbyPlayers(JSON.parse(message.body));
+        });
+    });
+
+    function joinLobby() {
+        var playerId = document.getElementById("playerId").value;
+        var playerUsername = document.getElementById("playerUsername").value;
+        var player = { id: playerId, username: playerUsername };
+        stompClient.send("/app/join", {}, JSON.stringify(player));
+    }
+
+    function showLobbyPlayers(players) {
+        var lobbyDiv = document.getElementById("lobby");
+        lobbyDiv.innerHTML = "<h2>Players in the Lobby:</h2>";
+        players.forEach(function(player) {
+            lobbyDiv.innerHTML += "<p>" + player.username + " (ID: " + player.id + ")</p>";
+        });
+    }
+
+</script>
+
+</body>
+</html>
