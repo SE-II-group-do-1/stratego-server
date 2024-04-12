@@ -17,7 +17,7 @@ public class SessionService implements SessionServiceI {
     /**
      * Session Service - manages "lobbys", keeps track of current game/board and associated players.
      * first Player assigned to Session (upon creation of new Session) is assigned Blue Player,
-     * following Player is assigned Red.
+     * following Player is assigned Red. Sessions automatically assigned ID, and added to activeSessions.
      * @param player1 - first Player. Session cannot be empty!
      */
     public SessionService(Player player1){
@@ -29,6 +29,10 @@ public class SessionService implements SessionServiceI {
         activeSessions.add(this);
         nextID++;
     }
+
+    /**
+     * updates the Player that is currently allowed to make a move.
+     */
     private void updatePlayerTurn(){
         this.currentTurn = this.currentTurn == this.playerBlue? this.playerRed : this.playerBlue;
     }
@@ -37,6 +41,7 @@ public class SessionService implements SessionServiceI {
      * updates Board when Player moves Piece/attacks.
      * @param y - row in Board for new position of Piece
      * @param x - column in Board for new position of Piece
+     * @param initiator - player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
      * @param piece - the Piece that moved
      */
     public void updateBoard(int y, int x, Piece piece, Player initiator) throws InvalidPlayerTurnException{
