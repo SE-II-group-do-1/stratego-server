@@ -44,9 +44,8 @@ public class SessionService implements SessionServiceI {
      * @param x - column in Board for new position of Piece
      * @param piece - the Piece that moved
      */
-
     public void updateBoard(int y, int x, Piece piece, Player initiator) throws InvalidPlayerTurnException{
-        if(initiator != this.currentTurn) throw new InvalidPlayerTurnException();
+        if(initiator.getId() != this.currentTurn.getId()) throw new InvalidPlayerTurnException();
         boolean overlap = checkOverlap(y,x);
         if(!overlap) this.board.setField(y,x,piece);
         updatePlayerTurn();
