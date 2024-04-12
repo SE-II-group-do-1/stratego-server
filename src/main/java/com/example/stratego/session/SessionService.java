@@ -9,6 +9,7 @@ public class SessionService implements SessionServiceI {
     private final Player playerBlue;
     private Player playerRed;
     private Board board;
+    private GameState currentGameState;
 
 
     /**
@@ -19,6 +20,7 @@ public class SessionService implements SessionServiceI {
      */
     public SessionService(Player player1){
         this.playerBlue = player1;
+        this.currentGameState = GameState.WAITING;
         this.board = new Board();
         assignID(this);
         activeSessions.add(this);
@@ -69,6 +71,7 @@ public class SessionService implements SessionServiceI {
 
     public void setPlayerRed(Player newPlayer){
         this.playerRed = newPlayer;
+        this.currentGameState = GameState.INGAME;
     }
 
     public Board getBoard(){
@@ -77,6 +80,10 @@ public class SessionService implements SessionServiceI {
 
     public int getId(){
         return this.id;
+    }
+
+    public GameState getCurrentGameState() {
+        return currentGameState;
     }
 
     public static ArrayList<SessionService> getActiveSessions() {
