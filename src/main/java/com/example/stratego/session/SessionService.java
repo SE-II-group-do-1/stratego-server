@@ -21,19 +21,14 @@ public class SessionService implements SessionServiceI {
      * @param player1 - first Player. Session cannot be empty!
      */
     public SessionService(Player player1){
+        this.id = nextID;
         this.playerBlue = player1;
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
         this.board = new Board();
-        assignID(this);
         activeSessions.add(this);
-    }
-
-    private static void assignID(SessionService session){
-        session.id = nextID;
         nextID++;
     }
-
     private void updatePlayerTurn(){
         this.currentTurn = this.currentTurn == this.playerBlue? this.playerRed : this.playerBlue;
     }
