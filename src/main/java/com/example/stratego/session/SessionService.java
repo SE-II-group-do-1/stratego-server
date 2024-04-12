@@ -1,6 +1,7 @@
 package com.example.stratego.session;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SessionService implements SessionServiceI {
     private static int nextID = 0;
@@ -10,6 +11,7 @@ public class SessionService implements SessionServiceI {
     private Player playerRed;
     private Board board;
     private GameState currentGameState;
+    private Player currentTurn;
 
 
     /**
@@ -20,6 +22,7 @@ public class SessionService implements SessionServiceI {
      */
     public SessionService(Player player1){
         this.playerBlue = player1;
+        this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
         this.board = new Board();
         assignID(this);
@@ -31,6 +34,10 @@ public class SessionService implements SessionServiceI {
         nextID++;
     }
 
+    private void updatePlayerTurn(){
+        this.currentTurn = this.currentTurn == this.playerBlue? this.playerRed : this.playerBlue;
+    }
+
     /**
      * updates Board when Player moves Piece/attacks.
      * @param y - row in Board for new position of Piece
@@ -38,9 +45,11 @@ public class SessionService implements SessionServiceI {
      * @param piece - the Piece that moved
      */
 
-    public void updateBoard(int y, int x, Piece piece){
+    public void updateBoard(int y, int x, Piece piece, Player initiator) throws InvalidPlayerTurnException{
+        if(initiator != this.currentTurn) throw new InvalidPlayerTurnException();
         boolean overlap = checkOverlap(y,x);
         if(!overlap) this.board.setField(y,x,piece);
+        updatePlayerTurn();
     }
 
     /**
@@ -86,7 +95,7 @@ public class SessionService implements SessionServiceI {
         return currentGameState;
     }
 
-    public static ArrayList<SessionService> getActiveSessions() {
+    public static List<SessionService> getActiveSessions() {
         return activeSessions;
     }
 }
