@@ -1,9 +1,15 @@
 package com.example.stratego.session;
 
+import java.util.ArrayList;
+
 public class SessionService implements SessionServiceI {
+    private static int nextID = 0;
+    private static ArrayList<SessionService> activeSessions = new ArrayList<>();
+    private int id;
     private final Player playerBlue;
     private Player playerRed;
     private Board board;
+
 
     /**
      * Session Service - manages "lobbys", keeps track of current game/board and associated players.
@@ -14,6 +20,13 @@ public class SessionService implements SessionServiceI {
     public SessionService(Player player1){
         this.playerBlue = player1;
         this.board = new Board();
+        assignID(this);
+        activeSessions.add(this);
+    }
+
+    private static void assignID(SessionService session){
+        session.id = nextID;
+        nextID++;
     }
 
     /**
@@ -60,5 +73,13 @@ public class SessionService implements SessionServiceI {
 
     public Board getBoard(){
         return this.board;
+    }
+
+    public int getId(){
+        return this.id;
+    }
+
+    public static ArrayList<SessionService> getActiveSessions() {
+        return activeSessions;
     }
 }
