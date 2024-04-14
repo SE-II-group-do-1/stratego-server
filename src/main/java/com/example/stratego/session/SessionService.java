@@ -1,5 +1,7 @@
 package com.example.stratego.session;
 
+import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +46,7 @@ public class SessionService implements SessionServiceI {
      * @param initiator - player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
      * @param piece - the Piece that moved
      */
-    public void updateBoard(int y, int x, Piece piece, Player initiator) throws InvalidPlayerTurnException{
+    public void updateBoard(int y, int x, Piece piece, Player initiator) throws InvalidPlayerTurnException {
         if(initiator.getId() != this.currentTurn.getId()) throw new InvalidPlayerTurnException();
         boolean overlap = checkOverlap(y,x);
         if(!overlap) this.board.setField(y,x,piece);
