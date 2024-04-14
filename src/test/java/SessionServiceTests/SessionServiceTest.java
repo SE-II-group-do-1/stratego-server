@@ -1,3 +1,6 @@
+package SessionServiceTests;
+
+import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.example.stratego.session.*;
@@ -31,14 +34,18 @@ class SessionServiceTest {
     @Test
     void testSetPieces(){
         Board testBoard = new Board();
-        testBoard.setField(3,4, new Piece(Rank.FLAG));
+        testBoard.setField(3,4, new Piece(Rank.FLAG, Color.BLUE));
         session.setPieces(testBoard);
         assertArrayEquals(testBoard.getBoard(), session.getBoard().getBoard());
     }
 
     @Test
     void testUpdateBoard(){
-        session.updateBoard(2,3, new Piece(Rank.GENERAL));
+        try {
+            session.updateBoard(2,3, new Piece(Rank.GENERAL, Color.BLUE), testPlayer);
+        } catch (InvalidPlayerTurnException e) {
+            throw new RuntimeException(e);
+        }
         assertEquals(Rank.GENERAL, session.getBoard().getField(2, 3).getRank());
     }
 }

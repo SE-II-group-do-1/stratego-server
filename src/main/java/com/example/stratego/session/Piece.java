@@ -23,9 +23,9 @@ public class Piece {
     /**
      * Construcor specific for Lakes. ID is always -1 (do not affect next ID), have no color.
      * @param rank should be Lake, otherwise use other constructor
-     * @throws WrongConstructorException if not given Lake rank
+     * @throws IllegalArgumentException if not given Lake rank
      */
-    public Piece(Rank rank) throws WrongConstructorException{
+    public Piece(Rank rank) throws WrongConstructorException {
         if(rank != Rank.LAKE) throw new WrongConstructorException();
         this.rank = rank;
         this.isVisible = true;
