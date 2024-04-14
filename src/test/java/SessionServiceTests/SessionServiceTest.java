@@ -13,10 +13,12 @@ class SessionServiceTest {
 
     SessionService session;
     Player testPlayer;
+    Player redPlayer;
 
     @BeforeEach
     void setup(){
-        testPlayer = new Player(1, "1");
+        testPlayer = new Player(1, "blue");
+        redPlayer = new Player(2,"red");
         session = new SessionService(testPlayer);
     }
 
@@ -54,6 +56,7 @@ class SessionServiceTest {
 
     @Test
     void testUpdateBoard(){
+        session.setPlayerRed(redPlayer);
         try {
             session.updateBoard(2,3, new Piece(Rank.GENERAL, Color.BLUE), testPlayer);
         } catch (InvalidPlayerTurnException e) {
@@ -64,8 +67,13 @@ class SessionServiceTest {
 
     @Test
     void testInvalidUpdateBoard(){
-        Player redPlayer = new Player(3, "red");
+        session.setPlayerRed(redPlayer);
         assertThrows(InvalidPlayerTurnException.class,() -> session.updateBoard(2,3, new Piece(Rank.GENERAL, Color.RED), redPlayer));
+
+    }
+    @Test
+    void testEarlyUpdateBoard(){
+        assertThrows(InvalidPlayerTurnException.class,() -> session.updateBoard(2,3, new Piece(Rank.GENERAL, Color.RED), testPlayer));
     }
 
     @Test
@@ -75,7 +83,6 @@ class SessionServiceTest {
 
     @Test
     void testGameStateIngame(){
-        Player redPlayer = new Player(3, "red");
         session.setPlayerRed(redPlayer);
         assertEquals(GameState.INGAME, session.getCurrentGameState());
     }
