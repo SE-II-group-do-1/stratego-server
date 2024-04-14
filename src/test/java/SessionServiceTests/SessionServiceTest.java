@@ -79,4 +79,11 @@ class SessionServiceTest {
         session.setPlayerRed(redPlayer);
         assertEquals(GameState.INGAME, session.getCurrentGameState());
     }
+
+    @Test
+    void testClose(){
+        session.close();
+        assertTrue(session.isClosed());
+        assertFalse(SessionService.getActiveSessions().contains(session));
+    }
 }
