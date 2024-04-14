@@ -1,14 +1,9 @@
 package com.example.stratego.session;
 
-import java.util.Objects;
 
 public class Player {
     private String username;
     private int id;
-
-    public Player() {
-        // Default constructor
-    }
 
     public Player(int id, String username) {
         this.id = id;
@@ -31,11 +26,4 @@ public class Player {
         this.id = id;
     }
 
-    @Override
-    public String toString() {
-        return "Player{" +
-                "username='" + username + '\'' +
-                ", id=" + id +
-                '}';
-    }
 }

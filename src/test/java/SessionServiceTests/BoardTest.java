@@ -1,3 +1,5 @@
+package SessionServiceTests;
+
 import com.example.stratego.session.Color;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
