@@ -9,6 +9,7 @@ import java.util.List;
 public class SessionService implements SessionServiceI, Closeable {
     private static int nextID = 0;
     private static ArrayList<SessionService> activeSessions = new ArrayList<>();
+    private static ArrayList<Player> activePlayers = new ArrayList<>();
     private int id;
     private final Player playerBlue;
     private Player playerRed;
@@ -106,6 +107,22 @@ public class SessionService implements SessionServiceI, Closeable {
 
     public static List<SessionService> getActiveSessions() {
         return activeSessions;
+    }
+
+    public static Player newPlayer(String username){
+        Player out = new Player(username);
+        activePlayers.add(out);
+        return out;
+    }
+
+    public static boolean removePlayer(Player toRemove){
+        if(!activePlayers.contains(toRemove)) return false;
+        activeSessions.remove(toRemove);
+        return true;
+    }
+
+    public static  List<Player> getActivePlayers(){
+        return activePlayers;
     }
 
     public boolean isClosed(){
