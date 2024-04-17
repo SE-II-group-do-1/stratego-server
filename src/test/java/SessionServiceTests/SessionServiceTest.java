@@ -1,3 +1,5 @@
+package SessionServiceTests;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.example.stratego.session.*;
@@ -11,7 +13,7 @@ class SessionServiceTest {
 
     @BeforeEach
     void setup(){
-        testPlayer = new Player(1, "1");
+        testPlayer = new Player("1");
         session = new SessionService(testPlayer);
     }
 
@@ -23,7 +25,7 @@ class SessionServiceTest {
 
     @Test
     void testAddPlayer(){
-        Player newPlayer = new Player(2, "2");
+        Player newPlayer = new Player("2");
         session.setPlayerRed(newPlayer);
         assertEquals(newPlayer, session.getPlayerRed());
     }
