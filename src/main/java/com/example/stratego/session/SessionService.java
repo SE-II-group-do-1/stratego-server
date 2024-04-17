@@ -117,7 +117,7 @@ public class SessionService implements SessionServiceI, Closeable {
 
     public static boolean removePlayer(Player toRemove){
         if(!activePlayers.contains(toRemove)) return false;
-        activeSessions.remove(toRemove);
+        activePlayers.remove(toRemove);
         return true;
     }
 
