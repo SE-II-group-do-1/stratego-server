@@ -1,18 +1,13 @@
 package com.example.stratego.session;
-
-import java.util.Objects;
-
 public class Player {
+    private static int nextID = 0;
     private String username;
     private int id;
 
-    public Player() {
-        // Default constructor
-    }
-
-    public Player(int id, String username) {
-        this.id = id;
+    public Player(String username) {
+        this.id = nextID;
         this.username = username;
+        nextID++;
     }
 
     public String getUsername() {
