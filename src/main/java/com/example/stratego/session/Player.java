@@ -1,13 +1,14 @@
 package com.example.stratego.session;
 
-
 public class Player {
+    private static int nextID = 0;
     private String username;
     private int id;
 
-    public Player(int id, String username) {
-        this.id = id;
+    public Player(String username) {
+        this.id = nextID;
         this.username = username;
+        nextID++;
     }
 
     public String getUsername() {

@@ -17,8 +17,8 @@ class SessionServiceTest {
 
     @BeforeEach
     void setup(){
-        testPlayer = new Player(1, "blue");
-        redPlayer = new Player(2,"red");
+        testPlayer = new Player( "blue");
+        redPlayer = new Player("red");
         session = new SessionService(testPlayer);
     }
 
@@ -41,7 +41,7 @@ class SessionServiceTest {
 
     @Test
     void testAddPlayer(){
-        Player newPlayer = new Player(2, "2");
+        Player newPlayer = new Player("2");
         session.setPlayerRed(newPlayer);
         assertEquals(newPlayer, session.getPlayerRed());
     }
