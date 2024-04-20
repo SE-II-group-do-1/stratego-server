@@ -88,6 +88,38 @@ class SessionServiceTest {
     }
 
     @Test
+    void testCheckOverlapFalse(){
+        assertFalse(session.checkOverlap(0,0));
+    }
+
+    @Test
+    void testCheckOverlapTrue(){
+        assertTrue(session.checkOverlap(4,2));
+    }
+
+    @Test
+    void testCreatePlayer(){
+        testPlayer = SessionService.newPlayer("test");
+        assertNotNull(testPlayer);
+    }
+
+    @Test
+    void testRemovePlayerTrue(){
+        testPlayer = SessionService.newPlayer("test");
+        SessionService.removePlayer(testPlayer);
+        assertFalse(SessionService.getActiveSessions().contains(testPlayer));
+    }
+
+
+    @Test
+    void testListPlayers(){
+        List players = SessionService.getActivePlayers();
+        assertNotNull(players);
+    }
+
+
+
+    @Test
     void testClose(){
         session.close();
         assertTrue(session.isClosed());
