@@ -1,3 +1,6 @@
+package SessionServiceTests;
+
+import com.example.stratego.session.Color;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,14 +35,14 @@ class BoardTest {
 
     @Test
     void testSetAndGetField(){
-        testBoard.setField(1,1, new Piece(Rank.BOMB));
+        testBoard.setField(1,1, new Piece(Rank.BOMB, Color.BLUE));
         assertEquals(Rank.BOMB, testBoard.getField(1, 1).getRank());
     }
 
     @Test
     void testSetAndGetBoard(){
         Board secondBoard = new Board();
-        secondBoard.setField(1,2, new Piece(Rank.MAJOR));
+        secondBoard.setField(1,2, new Piece(Rank.MAJOR, Color.BLUE));
         testBoard.setBoard(secondBoard);
         assertArrayEquals(secondBoard.getBoard(), testBoard.getBoard());
 
