@@ -1,4 +1,4 @@
-package com.example.stratego.connection.broker;
+package com.example.stratego.connection;
 
 import com.example.stratego.session.GameState;
 import com.example.stratego.session.Piece;
