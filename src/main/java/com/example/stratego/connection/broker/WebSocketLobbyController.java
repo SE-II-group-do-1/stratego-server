@@ -12,6 +12,9 @@ import org.springframework.stereotype.Controller;
 import com.example.stratego.session.Player;
 
 import java.util.List;
+import java.util.Map;
+
+import static java.util.Map.entry;
 
 @Controller
 public class WebSocketLobbyController {
@@ -47,7 +50,7 @@ public class WebSocketLobbyController {
                 .get(1);
         try {
             session.updateBoard(y,x,piece,initiator);
-            this.template.convertAndSend("/topic/lobby-"+session.getId(),"");
+            this.template.convertAndSend("/topic/lobby-"+session.getId(),updateToObject(y,x,piece));
         } catch (InvalidPlayerTurnException e) {
             sendException(e);
         }
@@ -56,15 +59,32 @@ public class WebSocketLobbyController {
 
 
     @MessageMapping("/leave")
-    public void leaveLobby(Player player){
+    public void leaveLobby(Player player, int sessionID){
         //check if player exists
         //check if in active lobby -> send to lobby that closed
+        if(SessionService.getActivePlayers().contains(player)){
+            SessionService session = SessionService.getActiveSessions().stream()
+                    .filter( s -> s.getId() == sessionID)
+                    .toList()
+                    .get(1);
+            this.template.convertAndSend("/topic/lobby-"+session.getId(), "close");
+            session.close();
+            SessionService.removePlayer(player);
+        }
     }
 
     @MessageExceptionHandler
     @SendToUser("/topic/errors")
     public String sendException(Throwable exception){
         return exception.toString();
+    }
+
+    private Map<String, Object> updateToObject(int y, int x, Piece piece){
+        return Map.ofEntries(
+            entry("y", y),
+            entry("x", x),
+            entry("piece", piece)
+        );
     }
 
 }
