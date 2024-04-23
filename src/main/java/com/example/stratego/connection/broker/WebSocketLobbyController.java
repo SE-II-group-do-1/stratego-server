@@ -6,15 +6,12 @@ import com.example.stratego.session.SessionService;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import com.example.stratego.session.Player;
 
 import java.util.List;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Controller
 public class WebSocketLobbyController {
