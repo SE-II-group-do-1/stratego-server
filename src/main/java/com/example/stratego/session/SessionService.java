@@ -2,11 +2,10 @@ package com.example.stratego.session;
 
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SessionService implements SessionServiceI, Closeable {
+public class SessionService implements SessionServiceI{
     private static int nextID = 0;
     private static ArrayList<SessionService> activeSessions = new ArrayList<>();
     private static ArrayList<Player> activePlayers = new ArrayList<>();
