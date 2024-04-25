@@ -45,7 +45,12 @@ public class WebSocketLobbyController {
 
     // has to recieve a Map with data in
     @MessageMapping("/update")
-    public void updateGame(int y, int x, Piece piece, Player initiator){
+    public void updateGame(Map<String, Object> message){
+        int y = (int) message.get("y");
+        int x = (int) message.get("x");
+        Piece piece = (Piece) message.get("piece");
+        Player initiator = (Player) message.get("initiator");
+
         SessionService session = SessionService.getActiveSessions().stream()
                 .filter( s -> s.getPlayerBlue() == initiator || s.getPlayerRed() == initiator)
                 .toList()
