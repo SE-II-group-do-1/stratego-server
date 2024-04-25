@@ -25,6 +25,7 @@ public class WebSocketLobbyController {
         this.template = template;
     }
 
+
     @MessageMapping("/join")
     @SendToUser
     public int joinLobby(Player player) {
@@ -42,6 +43,7 @@ public class WebSocketLobbyController {
         return newSession.getId();
     }
 
+    // has to recieve a Map with data in
     @MessageMapping("/update")
     public void updateGame(int y, int x, Piece piece, Player initiator){
         SessionService session = SessionService.getActiveSessions().stream()
@@ -57,11 +59,14 @@ public class WebSocketLobbyController {
     }
 
 
+    //has to recieve Map
 
     @MessageMapping("/leave")
-    public void leaveLobby(Player player, int sessionID){
+    public void leaveLobby(Map<String, Object> message){
         //check if player exists
         //check if in active lobby -> send to lobby that closed
+        int sessionID = (int) message.get("id");
+        Player player = (Player) message.get("player");
         if(SessionService.getActivePlayers().contains(player)){
             SessionService session = SessionService.getActiveSessions().stream()
                     .filter( s -> s.getId() == sessionID)
