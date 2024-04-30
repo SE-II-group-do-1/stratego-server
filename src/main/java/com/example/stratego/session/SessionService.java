@@ -15,7 +15,6 @@ public class SessionService implements SessionServiceI{
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
-    private boolean closed;
 
 
     /**
@@ -30,7 +29,6 @@ public class SessionService implements SessionServiceI{
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
         this.board = new Board();
-        this.closed = false;
         activeSessions.add(this);
         nextID++;
     }
@@ -75,7 +73,7 @@ public class SessionService implements SessionServiceI{
     }
 
     public void close(){
-        this.closed = true;
+        this.currentGameState = GameState.DONE;
         activeSessions.remove(this);
     }
 
@@ -125,6 +123,6 @@ public class SessionService implements SessionServiceI{
     }
 
     public boolean isClosed(){
-        return this.closed;
+        return this.currentGameState == GameState.DONE;
     }
 }

@@ -27,7 +27,7 @@ public class WebSocketLobbyController {
 
 
     @MessageMapping("/join")
-    @SendToUser
+    @SendToUser("/topic/reply")
     public int joinLobby(Player player) {
         //check for active sessions
         //if one in waiting = add to that lobby, else create new with corresponding topic
@@ -43,7 +43,6 @@ public class WebSocketLobbyController {
         return newSession.getId();
     }
 
-    // has to recieve a Map with data in
     @MessageMapping("/update")
     public void updateGame(Map<String, Object> message){
         int y = (int) message.get("y");
@@ -64,7 +63,6 @@ public class WebSocketLobbyController {
     }
 
 
-    //has to recieve Map
 
     @MessageMapping("/leave")
     public void leaveLobby(Map<String, Object> message){
