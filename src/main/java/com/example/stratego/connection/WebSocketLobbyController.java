@@ -1,15 +1,12 @@
 package com.example.stratego.connection;
 
-import com.example.stratego.session.GameState;
-import com.example.stratego.session.Piece;
-import com.example.stratego.session.SessionService;
+import com.example.stratego.session.*;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
-import com.example.stratego.session.Player;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,10 +26,11 @@ public class WebSocketLobbyController {
 
     @MessageMapping("/join")
     @SendToUser("/topic/reply")
-    public Map<String, Object> joinLobby(Player player) {
+    public Map<String, Object> joinLobby(String username) {
         //check for active sessions
         //if one in waiting = add to that lobby, else create new with corresponding topic
-        //return lobby ID
+        //return lobby ID, assigned color, player info
+        Player player = SessionService.newPlayer(username);
         Map<String, Object> toReturn = new HashMap<>();
         List<SessionService> active = SessionService.getActiveSessions();
         for(SessionService session: active){
@@ -40,6 +38,7 @@ public class WebSocketLobbyController {
                 session.setPlayerRed(player);
                 toReturn.put("id", session.getId());
                 toReturn.put("color", "red");
+                toReturn.put("user", player);
                 return toReturn;
             }
         }
@@ -47,6 +46,19 @@ public class WebSocketLobbyController {
         toReturn.put("id", newSession.getId());
         toReturn.put("color", "blue");
         return toReturn;
+    }
+
+    @MessageMapping("/setup")
+    public void setBoard(Map<String, Object> message){
+        Player sender = (Player) message.get("player");
+        Board board = (Board) message.get("board");
+
+        SessionService session = SessionService.getActiveSessions().stream()
+                .filter( s -> s.getPlayerBlue() == sender || s.getPlayerRed() == sender)
+                .toList()
+                .get(1);
+        //TODO: check if red/blue already setup board
+        session.getBoard().setBoard(board);
     }
 
     @MessageMapping("/update")
