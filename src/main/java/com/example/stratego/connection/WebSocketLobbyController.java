@@ -57,8 +57,13 @@ public class WebSocketLobbyController {
                 .filter( s -> s.getPlayerBlue() == sender || s.getPlayerRed() == sender)
                 .toList()
                 .get(1);
-        //TODO: check if red/blue already setup board
+        //checking if red/blue client side problem lol
         session.getBoard().setBoard(board);
+        Map<String, Object> toReturn = Map.of(
+            "player", sender,
+            "board", session.getBoard()
+        );
+        this.template.convertAndSend("/topic/setup-"+session.getId(), toReturn);
     }
 
     @MessageMapping("/update")
