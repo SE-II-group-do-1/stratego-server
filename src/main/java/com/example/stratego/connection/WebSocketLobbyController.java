@@ -11,6 +11,7 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import com.example.stratego.session.Player;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,19 +29,24 @@ public class WebSocketLobbyController {
 
     @MessageMapping("/join")
     @SendToUser("/topic/reply")
-    public int joinLobby(Player player) {
+    public Map<String, Object> joinLobby(Player player) {
         //check for active sessions
         //if one in waiting = add to that lobby, else create new with corresponding topic
         //return lobby ID
+        Map<String, Object> toReturn = new HashMap<>();
         List<SessionService> active = SessionService.getActiveSessions();
         for(SessionService session: active){
             if(session.getCurrentGameState() == GameState.WAITING){
                 session.setPlayerRed(player);
-                return session.getId();
+                toReturn.put("id", session.getId());
+                toReturn.put("color", "red");
+                return toReturn;
             }
         }
         SessionService newSession = new SessionService(player);
-        return newSession.getId();
+        toReturn.put("id", newSession.getId());
+        toReturn.put("color", "blue");
+        return toReturn;
     }
 
     @MessageMapping("/update")
