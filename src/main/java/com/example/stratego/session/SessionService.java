@@ -2,11 +2,10 @@ package com.example.stratego.session;
 
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SessionService implements SessionServiceI, Closeable {
+public class SessionService implements SessionServiceI{
     private static int nextID = 0;
     private static ArrayList<SessionService> activeSessions = new ArrayList<>();
     private static ArrayList<Player> activePlayers = new ArrayList<>();
@@ -16,7 +15,6 @@ public class SessionService implements SessionServiceI, Closeable {
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
-    private boolean closed;
 
 
     /**
@@ -31,7 +29,6 @@ public class SessionService implements SessionServiceI, Closeable {
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
         this.board = new Board();
-        this.closed = false;
         activeSessions.add(this);
         nextID++;
     }
@@ -76,7 +73,7 @@ public class SessionService implements SessionServiceI, Closeable {
     }
 
     public void close(){
-        this.closed = true;
+        this.currentGameState = GameState.DONE;
         activeSessions.remove(this);
     }
 
@@ -126,6 +123,6 @@ public class SessionService implements SessionServiceI, Closeable {
     }
 
     public boolean isClosed(){
-        return this.closed;
+        return this.currentGameState == GameState.DONE;
     }
 }

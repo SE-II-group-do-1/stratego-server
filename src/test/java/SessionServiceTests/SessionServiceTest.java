@@ -125,4 +125,9 @@ class SessionServiceTest {
         assertTrue(session.isClosed());
         assertFalse(SessionService.getActiveSessions().contains(session));
     }
+
+    @Test
+    void testCloseFalse(){
+        assertFalse(session.isClosed());
+    }
 }
