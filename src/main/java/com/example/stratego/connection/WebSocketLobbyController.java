@@ -37,14 +37,14 @@ public class WebSocketLobbyController {
             if(session.getCurrentGameState() == GameState.WAITING){
                 session.setPlayerRed(player);
                 toReturn.put("id", session.getId());
-                toReturn.put("color", "red");
+                toReturn.put("color", Color.RED);
                 toReturn.put("user", player);
                 return toReturn;
             }
         }
         SessionService newSession = new SessionService(player);
         toReturn.put("id", newSession.getId());
-        toReturn.put("color", "blue");
+        toReturn.put("color", Color.BLUE);
         return toReturn;
     }
 
