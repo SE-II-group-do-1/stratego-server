@@ -25,8 +25,7 @@ public class WebSocketLobbyController {
 
 
     @MessageMapping("/join")
-    //@SendToUser("/topic/reply")
-    public Map<String, Object> joinLobby(String username) {
+    public void joinLobby(String username) {
         //check for active sessions
         //if one in waiting = add to that lobby, else create new with corresponding topic
         //usernames must be different
@@ -40,13 +39,12 @@ public class WebSocketLobbyController {
                 toReturn.put("id", session.getId());
                 toReturn.put("playerBlue", session.getPlayerBlue());
                 toReturn.put("playerRed", player);
-                return toReturn;
+                this.template.convertAndSend("/topic/reply", toReturn);
             }
         }
         SessionService newSession = new SessionService(player);
         toReturn.put("id", newSession.getId());
         toReturn.put("playerBlue", player);
-        return toReturn;
     }
 
     @MessageMapping("/setup")
