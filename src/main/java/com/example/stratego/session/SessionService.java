@@ -15,6 +15,7 @@ public class SessionService implements SessionServiceI{
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
+    private int setup;
 
 
     /**
@@ -29,6 +30,7 @@ public class SessionService implements SessionServiceI{
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
         this.board = new Board();
+        this.setup = 0;
         activeSessions.add(this);
         nextID++;
     }
@@ -87,7 +89,13 @@ public class SessionService implements SessionServiceI{
 
     public void setPlayerRed(Player newPlayer){
         this.playerRed = newPlayer;
-        this.currentGameState = GameState.INGAME;
+        this.currentGameState = GameState.SETUP;
+    }
+
+    public void setBoard(Board board){
+        setup += 1;
+        this.board.setBoard(board);
+        if(setup == 2) this.currentGameState = GameState.INGAME;
     }
 
     public Board getBoard(){

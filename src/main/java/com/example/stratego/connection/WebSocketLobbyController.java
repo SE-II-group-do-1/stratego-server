@@ -57,12 +57,9 @@ public class WebSocketLobbyController {
                 .toList()
                 .get(1);
         //checking if red/blue client side problem lol
-        session.getBoard().setBoard(board);
-        Map<String, Object> toReturn = Map.of(
-            "player", sender,
-            "board", session.getBoard()
-        );
-        this.template.convertAndSend("/topic/setup-"+session.getId(), toReturn);
+        //send message once both parties have setup their board
+        session.setBoard(board);
+        if(session.getCurrentGameState() == GameState.INGAME)  this.template.convertAndSend("/topic/setup-"+session.getId(), session.getBoard());
     }
 
     @MessageMapping("/update")
