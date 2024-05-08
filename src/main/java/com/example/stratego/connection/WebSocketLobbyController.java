@@ -25,26 +25,27 @@ public class WebSocketLobbyController {
 
 
     @MessageMapping("/join")
-    @SendToUser("/topic/reply")
+    //@SendToUser("/topic/reply")
     public Map<String, Object> joinLobby(String username) {
         //check for active sessions
         //if one in waiting = add to that lobby, else create new with corresponding topic
-        //return lobby ID, assigned color, player info
+        //usernames must be different
+        //return lobby ID, both players (return only when session full)
         Player player = SessionService.newPlayer(username);
         Map<String, Object> toReturn = new HashMap<>();
         List<SessionService> active = SessionService.getActiveSessions();
         for(SessionService session: active){
-            if(session.getCurrentGameState() == GameState.WAITING){
+            if(session.getCurrentGameState() == GameState.WAITING && !session.getPlayerBlue().getUsername().equals(player.getUsername())){
                 session.setPlayerRed(player);
                 toReturn.put("id", session.getId());
-                toReturn.put("color", Color.RED);
-                toReturn.put("user", player);
+                toReturn.put("playerBlue", session.getPlayerBlue());
+                toReturn.put("playerRed", player);
                 return toReturn;
             }
         }
         SessionService newSession = new SessionService(player);
         toReturn.put("id", newSession.getId());
-        toReturn.put("color", Color.BLUE);
+        toReturn.put("playerBlue", player);
         return toReturn;
     }
 
