@@ -133,4 +133,8 @@ public class SessionService implements SessionServiceI{
     public boolean isClosed(){
         return this.currentGameState == GameState.DONE;
     }
+
+    public Player getCurrentTurn() {
+        return this.currentTurn;
+    }
 }

@@ -1,17 +1,30 @@
 package com.example.stratego;
 
 import com.example.stratego.session.Board;
+import com.example.stratego.session.Color;
 import com.example.stratego.session.Piece;
 import com.example.stratego.session.Player;
 import com.example.stratego.session.Rank;
+import com.example.stratego.session.SessionService;
 
 
 public class GamePlaySession {
 
-    private Board board = new Board();
+    private Board board;
+    private SessionService session;
+    private Player currentPlayer;
+    private Color playerColor;
+
+    public GamePlaySession(Player player1, Player player2) {
+        this.board = new Board();
+        this.session = new SessionService(player1);  // Initialize the session with the first player
+        session.setPlayerRed(player2);               // Set the second player
+        this.currentPlayer = session.getCurrentTurn();
+        this.playerColor = currentPlayer.getColor();// how to get the color?
+    }
 
     /**
-     *
+     * checks the board state to determine if a player has captured the flag
      */
     public boolean checkFlagCaptured() {
         for (int y = 0; y < 10; y++) {
@@ -26,14 +39,14 @@ public class GamePlaySession {
     }
 
     /**
-     *
+     * check if a specific player in the game has any pieces that can legally move
      */
 
-    public boolean hasMovablePieces(Player player) {
+    public boolean hasMovablePieces() {
         for (int y = 0; y < 10; y++) {
             for (int x = 0; x < 10; x++) {
                 Piece piece = board.getField(y, x);
-                if (piece != null && piece.getColor() == player.getId() && piece.isMovable()) {//piece.getId() == player.getId() how to match them?
+                if (piece != null && piece.getColor() == playerColor && piece.isMovable()) {
                     // check squares at boarder if move possible
                     if (canMove(y, x)) return true;
                 }
@@ -51,7 +64,7 @@ public class GamePlaySession {
     private boolean checkMove(int y, int x) {
         if (y < 0 || y >= 10 || x < 0 || x >= 10) return false; // Out of bounds
         Piece piece = board.getField(y, x);
-        return (piece == null || (piece.getRank() != Rank.LAKE && piece.getColor() != currentTurn)); // der der gerade gezogen hat darf nicht ziehen
+        return (piece == null || (piece.getRank() != Rank.LAKE && piece.getColor() != playerColor));
     }
 
 
