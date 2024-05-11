@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import net.bytebuddy.build.ToStringPlugin;
 
 @ExtendWith(MockitoExtension.class)
 class SessionServiceTest {
