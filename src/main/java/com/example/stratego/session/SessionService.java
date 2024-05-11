@@ -1,5 +1,6 @@
 package com.example.stratego.session;
 
+import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class SessionService implements SessionServiceI{
      */
     public void updateBoard(int y, int x, Piece piece, Player initiator) throws InvalidPlayerTurnException {
         if(initiator.getId() != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) throw new InvalidPlayerTurnException();
-        boolean overlap = checkOverlap(y,x);
+        boolean overlap = checkOverlap(y,x, piece, initiator);
         if(!overlap) this.board.setField(y,x,piece);
         updatePlayerTurn();
     }
@@ -70,8 +71,21 @@ public class SessionService implements SessionServiceI{
      * @param x - Column of updated position
      * @return - boolean for the moment
      */
-    public boolean checkOverlap(int y, int x){
-        return this.board.getField(y,x) != null;
+    public boolean checkOverlap(int y, int x, Piece piece, Player player){
+
+        boolean isRedPlayer = (player == playerRed);
+        Player playerToCheck = isRedPlayer ? playerRed : playerBlue;
+        Color targetColor = (player == playerRed) ? Color.BLUE : Color.RED;
+
+        boolean resultVictory = GamePlaySession.checkFlagCaptured(this.board, targetColor);
+        boolean resultMoveablePiece = GamePlaySession.hasMovablePieces(this.board, targetColor);
+        if (resultVictory) {
+            return resultVictory;
+        }
+        if(resultMoveablePiece) {
+            return resultMoveablePiece;
+        }
+        return false;
     }
 
     public void close(){
