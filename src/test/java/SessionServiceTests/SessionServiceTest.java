@@ -1,25 +1,39 @@
 package SessionServiceTests;
 
+import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.example.stratego.session.*;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import net.bytebuddy.build.ToStringPlugin;
+
+@ExtendWith(MockitoExtension.class)
 class SessionServiceTest {
 
     SessionService session;
     Player testPlayer;
     Player redPlayer;
+    Board board;
 
     @BeforeEach
     void setup(){
         testPlayer = new Player( "blue");
         redPlayer = new Player("red");
         session = new SessionService(testPlayer);
+
+        board = mock(Board.class);
+        session.setPlayerRed(redPlayer);
+        session.setBoard(board);
     }
 
     @Test
@@ -88,14 +102,14 @@ class SessionServiceTest {
     }
 
     @Test
-    void testCheckOverlapFalse(){
-        assertFalse(session.checkOverlap(0,0));
+    void testCheckOverlapWithFlagCaptured() {
+        // setup
+        when(GamePlaySession.checkFlagCaptured(board, Color.BLUE)).thenReturn(true);
+        when(GamePlaySession.hasMovablePieces(board, Color.BLUE)).thenReturn(false);
+
+        assertTrue(session.checkOverlap(5, 5, new Piece(Rank.MARSHAL, Color.BLUE), testPlayer));
     }
 
-    @Test
-    void testCheckOverlapTrue(){
-        assertTrue(session.checkOverlap(4,2));
-    }
 
     @Test
     void testCreatePlayer(){
