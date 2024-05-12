@@ -61,6 +61,41 @@ public class GamePlaySession {
         return (pieceAtNewLocation == null || pieceAtNewLocation.getRank() != Rank.LAKE);
     }
 
+    private static boolean fight(Piece attacker, Piece defender) {
+        // Check if either piece is null (invalid scenario)
+        if (attacker == null || defender == null) {
+            throw new IllegalArgumentException("Some Piece is missing!");
+        }
+
+        // First handle special pieces interactions
+        return handleSpecialCases(attacker, defender);
+    }
+    private static boolean handleSpecialCases(Piece attacker, Piece defender) {
+        // Check for Spy attacking a Marshal
+        if (attacker.getRank() == Rank.SPY && defender.getRank() == Rank.MARSHAL) {
+            return true; // Spy wins when attacking Marshal
+        }
+
+        // Check for Miner attacking a Bomb
+        if (attacker.getRank() == Rank.MINER && defender.getRank() == Rank.BOMB) {
+            return true; // Miner defuses Bomb
+        }
+
+        // Bomb destroys any attacker except Miner
+        if (defender.getRank() == Rank.BOMB) {
+            return false; // Any piece other than Miner attacking a Bomb loses
+        }
+
+        // TODO do more edge cases
+
+        // If no special cases apply, fall back to general fight resolution
+        return resolveGeneralFight(attacker, defender);
+    }
+    private static boolean resolveGeneralFight(Piece attacker, Piece defender) {
+        // Higher rank wins, or defender wins on tie
+        return attacker.getRank().getValue() > defender.getRank().getValue();
+    }
+
 
 
 }
