@@ -60,7 +60,9 @@ public class GamePlaySession {
         // Ensure the move does not go into a square occupied by a lake or another piece of the same player
         return (pieceAtNewLocation == null || pieceAtNewLocation.getRank() != Rank.LAKE);
     }
-
+    /**
+     * Checks if an attacker wins or loses TODO Check if the defender loses too if there is equality
+     */
     private static boolean fight(Piece attacker, Piece defender) {
         // Check if either piece is null (invalid scenario)
         if (attacker == null || defender == null) {
@@ -86,7 +88,7 @@ public class GamePlaySession {
             return false; // Any piece other than Miner attacking a Bomb loses
         }
 
-        // TODO do more edge cases
+        // TODO think of more edge cases
 
         // If no special cases apply, fall back to general fight resolution
         return resolveGeneralFight(attacker, defender);
@@ -94,6 +96,8 @@ public class GamePlaySession {
     private static boolean resolveGeneralFight(Piece attacker, Piece defender) {
         // Higher rank wins, or defender wins on tie
         return attacker.getRank().getValue() > defender.getRank().getValue();
+
+        //TODO same Value of pieces
     }
 
 
