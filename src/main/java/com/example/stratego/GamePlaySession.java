@@ -31,25 +31,52 @@ public class GamePlaySession {
     /**
      * Checks if a player has any pieces that can legally move.
      */
-    public static boolean hasMovablePieces(Board board, Color targetColor) {
+
+    public static boolean isPieceMovable(Board board, Piece attackingPiece) {
+
+        int[] coordinates = findPieceById(attackingPiece.getId(), board);
+
+        if (coordinates == null) {
+            return false;  // The piece is not found on the board
+        }
+        // Retrieve piece at point coordinates
+        attackingPiece = board.getField(coordinates[0], coordinates[1]);
+
+        // Check if the piece exists and is movable (not a flag, bomb, or lake)
+        if (attackingPiece != null && attackingPiece.isMovable()) {
+            // Check all four possible move directions
+            return canMove(board, coordinates[0], coordinates[1]);
+        }
+        return false; // No piece at the position or the piece is not movable
+    }
+
+/*
+Helper methods for isPieceMovable (findPieceById, canMove, checkMove)
+ */
+    /**
+     * Finds the coordinates of a piece by its ID.
+     * @param id  of the piece
+     * @param board where the pieces are located
+     * @return a Point representing the coordinates of the piece, or null if not found.
+     */
+    public static int[] findPieceById(int id, Board board) {
         for (int y = 0; y < 10; y++) {
             for (int x = 0; x < 10; x++) {
                 Piece piece = board.getField(y, x);
-                if (piece != null && piece.getColor() == targetColor && piece.isMovable()) {
-                    // check if piece can move
-                    if (canMove(board, y, x)) {
-                        return true; // yes move possible
-                    }
+                if (piece != null && piece.getId() == id) {
+                    return new int[] {y, x};  // coordinates were attacking piece is located
                 }
             }
         }
-        return false; // No move possible
+        return null;  // Return null if the piece is not found
     }
 
     private static boolean canMove(Board board, int y, int x) {
         // Check moves in four directions: up, down, left, right
-        return checkMove(board, y - 1, x) || checkMove(board, y + 1, x) ||
-                checkMove(board, y, x - 1) || checkMove(board, y, x + 1);
+        return checkMove(board, y - 1, x) ||
+                checkMove(board, y + 1, x) ||
+                checkMove(board, y, x - 1) ||
+                checkMove(board, y, x + 1);
     }
 
     private static boolean checkMove(Board board, int newY, int newX) {
@@ -60,6 +87,8 @@ public class GamePlaySession {
         // Ensure the move does not go into a square occupied by a lake or another piece of the same player
         return (pieceAtNewLocation == null || pieceAtNewLocation.getRank() != Rank.LAKE);
     }
+
+
     /**
      * Checks if an attacker wins or loses TODO Check if the defender loses too if there is equality
      */
