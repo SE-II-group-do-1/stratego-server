@@ -11,6 +11,7 @@ import com.example.stratego.session.*;
 
 import java.util.List;
 
+import static com.example.stratego.session.GameState.INGAME;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,17 +23,18 @@ class SessionServiceTest {
     SessionService session;
     Player testPlayer;
     Player redPlayer;
-    Board board;
+    Board boardMock;
 
     @BeforeEach
     void setup(){
+        //board = new Board();
         testPlayer = new Player( "blue");
         redPlayer = new Player("red");
         session = new SessionService(testPlayer);
 
-        board = mock(Board.class);
-        session.setPlayerRed(redPlayer);
-        session.setBoard(board);
+        boardMock = mock(Board.class);
+        //session.setPlayerRed(redPlayer);
+        //session.setBoard(board);
     }
 
     @Test
@@ -95,16 +97,24 @@ class SessionServiceTest {
     }
 
     @Test
+    void testGameStateSetup(){
+        session.setPlayerRed(redPlayer);
+        assertEquals(GameState.SETUP, session.getCurrentGameState());
+    }
+
+    @Test
     void testGameStateIngame(){
         session.setPlayerRed(redPlayer);
-        assertEquals(GameState.INGAME, session.getCurrentGameState());
+        session.setBoard(new Board());
+        session.setBoard(new Board());
+        assertEquals(INGAME, session.getCurrentGameState());
     }
 
     @Test
     void testCheckOverlapWithFlagCaptured() {
         // setup
-        when(GamePlaySession.checkFlagCaptured(board, Color.BLUE)).thenReturn(true);
-        when(GamePlaySession.hasMovablePieces(board, Color.BLUE)).thenReturn(false);
+        when(GamePlaySession.checkFlagCaptured(boardMock, Color.BLUE)).thenReturn(true);
+        when(GamePlaySession.hasMovablePieces(boardMock, Color.BLUE)).thenReturn(false);
 
         assertTrue(session.checkOverlap(5, 5, new Piece(Rank.MARSHAL, Color.BLUE), testPlayer));
     }
