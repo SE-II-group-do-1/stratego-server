@@ -5,6 +5,7 @@ import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.stratego.session.*;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import static com.example.stratego.session.GameState.INGAME;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,8 +35,6 @@ class SessionServiceTest {
         session = new SessionService(testPlayer);
 
         boardMock = mock(Board.class);
-        //session.setPlayerRed(redPlayer);
-        //session.setBoard(board);
     }
 
     @Test
@@ -110,15 +110,54 @@ class SessionServiceTest {
         assertEquals(INGAME, session.getCurrentGameState());
     }
 
-    @Test
-    void testCheckOverlapWithFlagCaptured() {
-        // setup
-        when(GamePlaySession.checkFlagCaptured(boardMock, Color.BLUE)).thenReturn(true);
-        when(GamePlaySession.hasMovablePieces(boardMock, Color.BLUE)).thenReturn(false);
 
-        assertTrue(session.checkOverlap(5, 5, new Piece(Rank.MARSHAL, Color.BLUE), testPlayer));
+    @Test
+    void testInvalidMoveDueToImmovablePiece() {
+
+        boardMock = mock(Board.class);
+        Piece pieceMock = mock(Piece.class);
+
+        when(boardMock.getField(5, 5)).thenReturn(pieceMock);
+        when(pieceMock.getColor()).thenReturn(Color.BLUE);
+        when(pieceMock.isMovable()).thenReturn(false);  // The piece is not movable
+
+        assertFalse(session.checkOverlap(5, 5, pieceMock, testPlayer));
     }
 
+    @Test
+    void testMoveToEmptySpace() {
+        Piece pieceMock = mock(Piece.class);
+
+        when(boardMock.getField(5, 5)).thenReturn(null);  // No piece at the target location
+        when(pieceMock.isMovable()).thenReturn(true);
+
+        assertTrue(session.checkOverlap(5, 5, pieceMock, testPlayer));
+        Mockito.verify(boardMock).setField(5, 5, pieceMock);  // Should place the piece at the empty location
+    }
+
+    @Test
+    void testCheckOverlapWithFlagCaptured() {
+        // Setup
+        Piece blueGeneral = new Piece(Rank.GENERAL, Color.BLUE);
+        Piece redFlag = new Piece(Rank.FLAG, Color.RED);
+        int targetX = 5;
+        int targetY = 5;
+
+        // Setup board
+        boardMock.setField(targetY, targetX, redFlag);  // Red flag placed at (5, 5)
+        boardMock.setField(4, 4, blueGeneral);  // Blue general placed near the flag
+
+        // Mocking static methods in GamePlaySession for flag capture check
+        GamePlaySession spySession = Mockito.spy(GamePlaySession.class);
+        doReturn(true).when(spySession).checkFlagCaptured(boardMock, Color.RED);
+
+        // Act
+        boolean flagCaptured = session.checkOverlap(targetY, targetX, blueGeneral, testPlayer);
+
+        // Assert
+        assertTrue(flagCaptured);
+        assertEquals(GameState.DONE, session.getCurrentGameState());
+    }
 
     @Test
     void testCreatePlayer(){
