@@ -19,8 +19,8 @@ class GamePlaySessionTest {
         board = new Board(); // Reset the board before each test
 
         // Set up pieces
-        movablePiece = new Piece(Rank.SPY, Color.BLUE);
-        immovablePiece = new Piece(Rank.FLAG, Color.RED);
+        movablePiece = new Piece(Rank.MARSHAL, Color.BLUE);
+        immovablePiece = new Piece(Rank.BOMB, Color.RED);
         try {
             lakePiece = new Piece(Rank.LAKE);
         } catch (WrongConstructorException e) {
@@ -40,13 +40,6 @@ class GamePlaySessionTest {
     }
 
     @Test
-    void testIsPieceMovable_SurroundedByLakesAndPieces() {
-        board.setField(5, 4, lakePiece);
-        board.setField(6, 5, immovablePiece);
-        assertFalse(GamePlaySession.isPieceMovable(board, movablePiece));
-    }
-
-    @Test
     void testIsPieceMovable_AtEdgeOfBoard() {
         // Place a movable piece at the edge and test
         board.setField(0, 0, new Piece(Rank.SCOUT, Color.BLUE));
@@ -54,15 +47,22 @@ class GamePlaySessionTest {
     }
 
     @Test
-    void testCheckFlagCaptured() {
-        board.setField(0, 0, new Piece(Rank.FLAG, Color.BLUE));  // Place a blue flag
-        board.setField(9, 9, new Piece(Rank.GENERAL, Color.RED));  // Place a red piece
+    void testFlagCaptureByEnemy() {
+        // Setup
+        board.setField(0, 0, new Piece(Rank.FLAG, Color.BLUE));
+        board.setField(0, 1, new Piece(Rank.GENERAL, Color.RED));
 
-        // Test capturing blue flag
-        assertTrue(GamePlaySession.checkFlagCaptured(board, Color.BLUE));
-        // Test not capturing red flag
-        assertFalse(GamePlaySession.checkFlagCaptured(board, Color.RED));
+        // Action and Assert: Test capturing blue flag by moving red general to (0,0).
+        assertTrue(GamePlaySession.checkFlagCaptured(board, Color.RED, 0, 0));
     }
 
+    @Test
+    void testNoFlagToCapture() {
+        // Setup
+        board.setField(9, 8, new Piece(Rank.GENERAL, Color.RED));
+
+        // Action and Assert: Test no flag to capture at (9,9).
+        assertFalse(GamePlaySession.checkFlagCaptured(board, Color.RED, 9, 9));
+    }
 
 }

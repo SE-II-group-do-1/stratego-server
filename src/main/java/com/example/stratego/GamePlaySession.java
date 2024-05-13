@@ -12,19 +12,17 @@ public class GamePlaySession {
     /**
      * Checks the board state to determine if a player has captured a flag of the opponent
      * @param board game board
-     * @param targetFlagColor color of the flag
+     * @param attackColor color of the attacker
+     * @param x-coordinate of target piece
+     * @param y-coordinate of target piece
      * @return true if the flag of the specified color has been captured, false otherwise.
      */
-    public static boolean checkFlagCaptured(Board board, Color targetFlagColor) {
-        for (int y = 0; y < 10; y++) {
-            for (int x = 0; x < 10; x++) {
-                Piece piece = board.getField(y, x);
-                if (piece != null && piece.getRank() == Rank.FLAG && piece.getColor() == targetFlagColor) {
-                    return true; // Flag of the specified color has been captured
-                }
-            }
+    public static boolean checkFlagCaptured(Board board, Color attackColor, int y, int x) {
+        Piece targetPiece = board.getField(y, x);
+        if (targetPiece != null && targetPiece.getRank() == Rank.FLAG && targetPiece.getColor() != attackColor) {
+            return true; // The flag has been captured because it is of the opposite color and is attacked directly
         }
-        return false; // No flag of the specified color captured
+        return false;
     }
 
 

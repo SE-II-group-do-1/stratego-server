@@ -85,7 +85,7 @@ public class SessionService implements SessionServiceI{
             // Ensure piece belongs to opponent
             if (existingPiece.getColor() != piece.getColor()) {
                 if (existingPiece.getRank() == Rank.FLAG) {
-                    GamePlaySession.checkFlagCaptured(this.board, piece.getColor());
+                    GamePlaySession.checkFlagCaptured(this.board, piece.getColor(), y,x);
                     this.currentGameState = GameState.DONE;
                     return true;
                 } else {
