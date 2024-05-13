@@ -94,10 +94,17 @@ public class GamePlaySession {
         return resolveGeneralFight(attacker, defender);
     }
     private static boolean resolveGeneralFight(Piece attacker, Piece defender) {
-        // Higher rank wins, or defender wins on tie
-        return attacker.getRank().getValue() > defender.getRank().getValue();
+        // Retrieve values from the RankValues map
+        int attackerValue = RankValues.getRankValue(attacker.getRank());
+        int defenderValue = RankValues.getRankValue(defender.getRank());
 
-        //TODO same Value of pieces
+        // Handle case where both have the same rank
+        if (attackerValue == defenderValue) {
+            return false; // Indicate that the fight results in a tie (both pieces are removed)
+        }
+
+        // Higher rank wins
+        return attackerValue > defenderValue;
     }
 
 
