@@ -92,7 +92,7 @@ Helper methods for isPieceMovable (findPieceById, canMove, checkMove)
     /**
      * Checks if an attacker wins or loses TODO Check if the defender loses too if there is equality
      */
-    private static boolean fight(Piece attacker, Piece defender) {
+    public static boolean fight(Piece attacker, Piece defender) {
         // Check if either piece is null (invalid scenario)
         if (attacker == null || defender == null) {
             throw new IllegalArgumentException("Some Piece is missing!");

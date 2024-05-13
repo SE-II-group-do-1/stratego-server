@@ -71,20 +71,53 @@ public class SessionService implements SessionServiceI{
      * @param x - Column of updated position
      * @return - boolean for the moment
      */
-    public boolean checkOverlap(int y, int x, Piece piece, Player player){
 
-        boolean isRedPlayer = (player == playerRed);
-        Player playerToCheck = isRedPlayer ? playerRed : playerBlue;
-        Color targetColor = (player == playerRed) ? Color.BLUE : Color.RED;
+    public boolean checkOverlap(int y, int x, Piece piece, Player player) {
 
-        boolean resultVictory = GamePlaySession.checkFlagCaptured(this.board, targetColor);
-        boolean resultMoveablePiece = GamePlaySession.hasMovablePieces(this.board, targetColor);
-        if (resultVictory) {
-            return resultVictory;
+        Piece existingPiece = this.board.getField(y, x);
+
+        // check if attacking piece can move
+        if (!GamePlaySession.isPieceMovable(this.board, piece)) {
+            return false;  // no move possible
         }
-        if(resultMoveablePiece) {
-            return resultMoveablePiece;
+
+        if (existingPiece != null) {
+            // Ensure piece belongs to opponent
+            if (existingPiece.getColor() != piece.getColor()) {
+                if (existingPiece.getRank() == Rank.FLAG) {
+                    GamePlaySession.checkFlagCaptured(this.board, piece.getColor());
+                    this.currentGameState = GameState.DONE;
+                    return true;
+                } else {
+                    //resolve battle
+                    boolean victory = GamePlaySession.fight(piece, existingPiece);
+                    if (victory) {
+                        // Win - replace the opponent's piece
+                        this.board.setField(y, x, piece);
+                        return true;
+                    } else {
+                        // Lose - remove the attacking piece
+                        //this.board.setField(piece.getPreviousY(), piece.getPreviousX(), null); the square of the attacking piece must be set null
+                        return false;
+                    }
+                }
+            } else {
+                //no move possible
+                this.currentGameState = GameState.DONE;
+                return true;
+            }
+
+        } else {
+            // Move to an empty square is always valid
+            this.board.setField(y, x, piece);
         }
+
+
+
+    // Update player turn only if the game is still ongoing
+        if (this.currentGameState != GameState.DONE) {
+        updatePlayerTurn();
+    }
         return false;
     }
 
