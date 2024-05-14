@@ -65,4 +65,55 @@ class GamePlaySessionTest {
         assertFalse(GamePlaySession.checkFlagCaptured(board, Color.RED, 9, 9));
     }
 
+    @Test
+    void testFight_SpyAttacksMarshal() {
+        Piece spy = new Piece(Rank.SPY, Color.BLUE);
+        Piece marshal = new Piece(Rank.MARSHAL, Color.RED);
+
+        assertTrue(GamePlaySession.fight(spy, marshal));
+    }
+
+    @Test
+    void testFight_MinerAttacksBomb() {
+        Piece miner = new Piece(Rank.MINER, Color.BLUE);
+        Piece bomb = new Piece(Rank.BOMB, Color.RED);
+
+        assertTrue(GamePlaySession.fight(miner, bomb));
+    }
+
+    @Test
+    void testFight_AttackerAttacksBomb() {
+        Piece attacker = new Piece(Rank.LIEUTENANT, Color.BLUE);
+        Piece bomb = new Piece(Rank.BOMB, Color.RED);
+
+        assertFalse(GamePlaySession.fight(attacker, bomb));
+    }
+
+    @Test
+    void testFight_NormalAttack() {
+        Piece lieutenant = new Piece(Rank.LIEUTENANT, Color.BLUE);
+        Piece captain = new Piece(Rank.CAPTAIN, Color.RED);
+
+        // Since captain has a higher rank, lieutenant should lose
+        assertFalse(GamePlaySession.fight(lieutenant, captain));
+    }
+
+    @Test
+    void testFight_EqualRank() {
+        Piece captainBlue = new Piece(Rank.CAPTAIN, Color.BLUE);
+        Piece captainRed = new Piece(Rank.CAPTAIN, Color.RED);
+
+        // Both pieces have the same rank, so it should result in a tie (returning false)
+        assertFalse(GamePlaySession.fight(captainBlue, captainRed));
+    }
+
+    @Test
+    void testFight_AttackerWins() {
+        Piece general = new Piece(Rank.GENERAL, Color.BLUE);
+        Piece lieutenant = new Piece(Rank.LIEUTENANT, Color.RED);
+
+        // Since general has a higher rank, general should win
+        assertTrue(GamePlaySession.fight(general, lieutenant));
+    }
+
 }
