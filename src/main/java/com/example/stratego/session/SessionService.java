@@ -109,18 +109,10 @@ public class SessionService implements SessionServiceI{
                 this.currentGameState = GameState.DONE;
                 return true;
             }
-
         } else {
             // Move to an empty square is always valid
             this.board.setField(y, x, piece);
         }
-
-
-
-    // Update player turn only if the game is still ongoing
-        if (this.currentGameState != GameState.DONE) {
-        updatePlayerTurn();
-    }
         return false;
     }
 
