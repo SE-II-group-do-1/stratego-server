@@ -77,9 +77,12 @@ public class SessionService implements SessionServiceI{
         Piece existingPiece = this.board.getField(y, x);
 
         // check if attacking piece can move
+        /* already checked client side
         if (!GamePlaySession.isPieceMovable(this.board, piece)) {
             return false;  // no move possible
         }
+
+         */
 
         if (existingPiece != null) {
             // Ensure piece belongs to opponent

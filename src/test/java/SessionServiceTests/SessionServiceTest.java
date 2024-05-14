@@ -92,6 +92,28 @@ class SessionServiceTest {
     }
 
     @Test
+    void testCheckOverlap(){
+        try {
+            session.setPlayerRed(redPlayer);
+            session.updateBoard(1,1, new Piece(Rank.SCOUT, Color.BLUE), testPlayer);
+            assertTrue(session.checkOverlap(1,1, new Piece(Rank.MAJOR, Color.RED), redPlayer));
+        } catch (InvalidPlayerTurnException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void testCheckOverlapFlag(){
+        try {
+            session.setPlayerRed(redPlayer);
+            session.updateBoard(1,1, new Piece(Rank.FLAG, Color.BLUE), testPlayer);
+            assertTrue(session.checkOverlap(1,1, new Piece(Rank.MAJOR, Color.RED), redPlayer));
+        } catch (InvalidPlayerTurnException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
     void testGameStateWaiting(){
         assertEquals(GameState.WAITING, session.getCurrentGameState());
     }
