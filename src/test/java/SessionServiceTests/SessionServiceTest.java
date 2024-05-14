@@ -1,25 +1,40 @@
 package SessionServiceTests;
 
+import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.example.stratego.session.*;
 
 import java.util.List;
 
+import static com.example.stratego.session.GameState.INGAME;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+
+@ExtendWith(MockitoExtension.class)
 class SessionServiceTest {
 
     SessionService session;
     Player testPlayer;
     Player redPlayer;
+    Board boardMock;
 
     @BeforeEach
     void setup(){
+        //board = new Board();
         testPlayer = new Player( "blue");
         redPlayer = new Player("red");
         session = new SessionService(testPlayer);
+
+        boardMock = mock(Board.class);
     }
 
     @Test
@@ -77,25 +92,57 @@ class SessionServiceTest {
     }
 
     @Test
+    void testCheckOverlap(){
+        try {
+            session.setPlayerRed(redPlayer);
+            session.updateBoard(1,1, new Piece(Rank.SCOUT, Color.BLUE), testPlayer);
+            assertTrue(session.checkOverlap(1,1, new Piece(Rank.MAJOR, Color.RED), redPlayer));
+        } catch (InvalidPlayerTurnException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void testCheckOverlapFlag(){
+        try {
+            session.setPlayerRed(redPlayer);
+            session.updateBoard(1,1, new Piece(Rank.FLAG, Color.BLUE), testPlayer);
+            assertTrue(session.checkOverlap(1,1, new Piece(Rank.MAJOR, Color.RED), redPlayer));
+        } catch (InvalidPlayerTurnException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void testCheckOverlapVictory(){
+        try {
+            session.setPlayerRed(redPlayer);
+            session.updateBoard(1,1, new Piece(Rank.FLAG, Color.BLUE), testPlayer);
+            assertTrue(session.checkOverlap(1,1, new Piece(Rank.MAJOR, Color.BLUE), redPlayer));
+        } catch (InvalidPlayerTurnException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
     void testGameStateWaiting(){
         assertEquals(GameState.WAITING, session.getCurrentGameState());
     }
 
     @Test
+    void testGameStateSetup(){
+        session.setPlayerRed(redPlayer);
+        assertEquals(GameState.SETUP, session.getCurrentGameState());
+    }
+
+    @Test
     void testGameStateIngame(){
         session.setPlayerRed(redPlayer);
-        assertEquals(GameState.INGAME, session.getCurrentGameState());
+        session.setBoard(new Board());
+        session.setBoard(new Board());
+        assertEquals(INGAME, session.getCurrentGameState());
     }
 
-    @Test
-    void testCheckOverlapFalse(){
-        assertFalse(session.checkOverlap(0,0));
-    }
-
-    @Test
-    void testCheckOverlapTrue(){
-        assertTrue(session.checkOverlap(4,2));
-    }
 
     @Test
     void testCreatePlayer(){

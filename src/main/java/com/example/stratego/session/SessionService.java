@@ -1,5 +1,6 @@
 package com.example.stratego.session;
 
+import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class SessionService implements SessionServiceI{
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
+    private int setup;
 
 
     /**
@@ -29,6 +31,7 @@ public class SessionService implements SessionServiceI{
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
         this.board = new Board();
+        this.setup = 0;
         activeSessions.add(this);
         nextID++;
     }
@@ -49,7 +52,7 @@ public class SessionService implements SessionServiceI{
      */
     public void updateBoard(int y, int x, Piece piece, Player initiator) throws InvalidPlayerTurnException {
         if(initiator.getId() != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) throw new InvalidPlayerTurnException();
-        boolean overlap = checkOverlap(y,x);
+        boolean overlap = checkOverlap(y,x, piece, initiator);
         if(!overlap) this.board.setField(y,x,piece);
         updatePlayerTurn();
     }
@@ -68,8 +71,49 @@ public class SessionService implements SessionServiceI{
      * @param x - Column of updated position
      * @return - boolean for the moment
      */
-    public boolean checkOverlap(int y, int x){
-        return this.board.getField(y,x) != null;
+
+    public boolean checkOverlap(int y, int x, Piece piece, Player player) {
+
+        Piece existingPiece = this.board.getField(y, x);
+
+        // check if attacking piece can move
+        /* already checked client side
+        if (!GamePlaySession.isPieceMovable(this.board, piece)) {
+            return false;  // no move possible
+        }
+
+         */
+
+        if (existingPiece != null) {
+            // Ensure piece belongs to opponent
+            if (existingPiece.getColor() != piece.getColor()) {
+                if (existingPiece.getRank() == Rank.FLAG) {
+                    GamePlaySession.checkFlagCaptured(this.board, piece.getColor(), y,x);
+                    this.currentGameState = GameState.DONE;
+                    return true;
+                } else {
+                    //resolve battle
+                    boolean victory = GamePlaySession.fight(piece, existingPiece);
+                    if (victory) {
+                        // Win - replace the opponent's piece
+                        this.board.setField(y, x, piece);
+                        return true;
+                    } else {
+                        // Lose - remove the attacking piece
+                        //this.board.setField(piece.getPreviousY(), piece.getPreviousX(), null); the square of the attacking piece must be set null
+                        return false;
+                    }
+                }
+            } else {
+                //no move possible
+                this.currentGameState = GameState.DONE;
+                return true;
+            }
+        } else {
+            // Move to an empty square is always valid
+            this.board.setField(y, x, piece);
+        }
+        return false;
     }
 
     public void close(){
@@ -87,7 +131,13 @@ public class SessionService implements SessionServiceI{
 
     public void setPlayerRed(Player newPlayer){
         this.playerRed = newPlayer;
-        this.currentGameState = GameState.INGAME;
+        this.currentGameState = GameState.SETUP;
+    }
+
+    public void setBoard(Board board){
+        setup += 1;
+        this.board.setBoard(board);
+        if(setup == 2) this.currentGameState = GameState.INGAME;
     }
 
     public Board getBoard(){
@@ -124,5 +174,9 @@ public class SessionService implements SessionServiceI{
 
     public boolean isClosed(){
         return this.currentGameState == GameState.DONE;
+    }
+
+    public Player getCurrentTurn() {
+        return this.currentTurn;
     }
 }

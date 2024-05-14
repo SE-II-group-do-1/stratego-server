@@ -5,6 +5,6 @@ import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 public interface SessionServiceI {
     void updateBoard(int y, int x, Piece piece, Player initiator) throws InvalidPlayerTurnException;
 
-    boolean checkOverlap(int y, int x);
+    boolean checkOverlap(int y, int x, Piece piece, Player player);
     void setPieces(Board playerBoard);
 }

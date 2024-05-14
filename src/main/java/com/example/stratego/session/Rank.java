@@ -14,5 +14,4 @@ public enum Rank {
     FLAG,
     BOMB,
     LAKE
-
 }

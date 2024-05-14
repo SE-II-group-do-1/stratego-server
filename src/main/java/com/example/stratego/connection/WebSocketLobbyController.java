@@ -25,27 +25,26 @@ public class WebSocketLobbyController {
 
 
     @MessageMapping("/join")
-    @SendToUser("/topic/reply")
-    public Map<String, Object> joinLobby(String username) {
+    public void joinLobby(String username) {
         //check for active sessions
         //if one in waiting = add to that lobby, else create new with corresponding topic
-        //return lobby ID, assigned color, player info
+        //usernames must be different
+        //return lobby ID, both players (return only when session full)
         Player player = SessionService.newPlayer(username);
         Map<String, Object> toReturn = new HashMap<>();
         List<SessionService> active = SessionService.getActiveSessions();
         for(SessionService session: active){
-            if(session.getCurrentGameState() == GameState.WAITING){
+            if(session.getCurrentGameState() == GameState.WAITING && !session.getPlayerBlue().getUsername().equals(player.getUsername())){
                 session.setPlayerRed(player);
                 toReturn.put("id", session.getId());
-                toReturn.put("color", "red");
-                toReturn.put("user", player);
-                return toReturn;
+                toReturn.put("playerBlue", session.getPlayerBlue());
+                toReturn.put("playerRed", player);
+                this.template.convertAndSend("/topic/reply", toReturn);
             }
         }
         SessionService newSession = new SessionService(player);
         toReturn.put("id", newSession.getId());
-        toReturn.put("color", "blue");
-        return toReturn;
+        toReturn.put("playerBlue", player);
     }
 
     @MessageMapping("/setup")
@@ -58,12 +57,9 @@ public class WebSocketLobbyController {
                 .toList()
                 .get(1);
         //checking if red/blue client side problem lol
-        session.getBoard().setBoard(board);
-        Map<String, Object> toReturn = Map.of(
-            "player", sender,
-            "board", session.getBoard()
-        );
-        this.template.convertAndSend("/topic/setup-"+session.getId(), toReturn);
+        //send message once both parties have setup their board
+        session.setBoard(board);
+        if(session.getCurrentGameState() == GameState.INGAME)  this.template.convertAndSend("/topic/setup-"+session.getId(), session.getBoard());
     }
 
     @MessageMapping("/update")
