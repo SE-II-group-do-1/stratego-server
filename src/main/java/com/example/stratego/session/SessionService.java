@@ -16,7 +16,6 @@ public class SessionService implements SessionServiceI{
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
-    private int setup;
 
 
     /**
@@ -31,7 +30,6 @@ public class SessionService implements SessionServiceI{
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
         this.board = new Board();
-        this.setup = 0;
         activeSessions.add(this);
         nextID++;
     }
@@ -45,15 +43,13 @@ public class SessionService implements SessionServiceI{
 
     /**
      * updates Board when Player moves Piece/attacks.
-     * @param y - row in Board for new position of Piece
-     * @param x - column in Board for new position of Piece
+     * @param board - Board sent by client
      * @param initiator - player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
-     * @param piece - the Piece that moved
      */
-    public void updateBoard(int y, int x, Piece piece, Player initiator) throws InvalidPlayerTurnException {
-        if(initiator.getId() != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) throw new InvalidPlayerTurnException();
+    public void updateBoard(Board board, int initiator) throws InvalidPlayerTurnException {
+        if(initiator != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) throw new InvalidPlayerTurnException();
         boolean overlap = checkOverlap(y,x, piece, initiator);
-        if(!overlap) this.board.setField(y,x,piece);
+        if(!overlap) this.board.setBoard(board);
         updatePlayerTurn();
     }
 
@@ -75,14 +71,6 @@ public class SessionService implements SessionServiceI{
     public boolean checkOverlap(int y, int x, Piece piece, Player player) {
 
         Piece existingPiece = this.board.getField(y, x);
-
-        // check if attacking piece can move
-        /* already checked client side
-        if (!GamePlaySession.isPieceMovable(this.board, piece)) {
-            return false;  // no move possible
-        }
-
-         */
 
         if (existingPiece != null) {
             // Ensure piece belongs to opponent
@@ -131,13 +119,7 @@ public class SessionService implements SessionServiceI{
 
     public void setPlayerRed(Player newPlayer){
         this.playerRed = newPlayer;
-        this.currentGameState = GameState.SETUP;
-    }
-
-    public void setBoard(Board board){
-        setup += 1;
-        this.board.setBoard(board);
-        if(setup == 2) this.currentGameState = GameState.INGAME;
+        this.currentGameState = GameState.INGAME;
     }
 
     public Board getBoard(){

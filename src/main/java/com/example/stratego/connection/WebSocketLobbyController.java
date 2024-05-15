@@ -45,8 +45,6 @@ public class WebSocketLobbyController {
         new SessionService(player);
     }
 
-    //TODO: remove SETUP from GameState ENUM (Setup is either already saved or random generated client side)
-
     @MessageMapping("/update")
     public void updateGame(Map<String, Object> message){
         int initiator = (int) message.get("initiator");
@@ -57,7 +55,7 @@ public class WebSocketLobbyController {
                 .toList()
                 .get(1);
         try {
-            session.updateBoard(board); //TODO: updateBoard to take Board
+            session.updateBoard(board, initiator);
             this.template.convertAndSend("/topic/lobby-"+session.getId(),session.getBoard());
         } catch (InvalidPlayerTurnException e) {
             sendException(e);
@@ -67,16 +65,26 @@ public class WebSocketLobbyController {
 
 
     @MessageMapping("/leave")
-    public void leaveLobby(Map<String, Object> message){
+    public void leaveLobby(int message){
         //check if player exists
         //check if in active lobby -> send to lobby that closed
-        int sessionID = (int) message.get("id");
-        Player player = (Player) message.get("player");
+        Player player = SessionService.getActivePlayers().stream()
+                .filter( p -> p.getId() == message)
+                .toList()
+                .get(1);
         if(SessionService.getActivePlayers().contains(player)){
+
+            int sessionID = SessionService.getActiveSessions().stream()
+                    .filter( s -> s.getPlayerBlue() == player || s.getPlayerRed() == player)
+                    .toList()
+                    .get(1)
+                    .getId();
+
             SessionService session = SessionService.getActiveSessions().stream()
                     .filter( s -> s.getId() == sessionID)
                     .toList()
                     .get(1);
+
             this.template.convertAndSend("/topic/lobby-"+session.getId(), "close");
             session.close();
             SessionService.removePlayer(player);
