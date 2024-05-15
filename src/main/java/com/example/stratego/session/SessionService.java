@@ -16,7 +16,6 @@ public class SessionService implements SessionServiceI{
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
-    private int setup;
 
 
     /**
@@ -31,8 +30,8 @@ public class SessionService implements SessionServiceI{
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
         this.board = new Board();
-        this.setup = 0;
         activeSessions.add(this);
+        activePlayers.add(player1);
         nextID++;
     }
 
@@ -45,75 +44,60 @@ public class SessionService implements SessionServiceI{
 
     /**
      * updates Board when Player moves Piece/attacks.
-     * @param y - row in Board for new position of Piece
-     * @param x - column in Board for new position of Piece
-     * @param initiator - player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
-     * @param piece - the Piece that moved
+     * @param board new board state sent by client
+     * @param initiator player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
      */
-    public void updateBoard(int y, int x, Piece piece, Player initiator) throws InvalidPlayerTurnException {
-        if(initiator.getId() != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) throw new InvalidPlayerTurnException();
-        boolean overlap = checkOverlap(y,x, piece, initiator);
-        if(!overlap) this.board.setField(y,x,piece);
+    public void updateBoard(Board board, int initiator) throws InvalidPlayerTurnException {
+        if (initiator != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) {
+            throw new InvalidPlayerTurnException();
+        }
+        Player player = getPlayerByID(initiator);
+        identifyBoardChange(this.board, board, player);
         updatePlayerTurn();
     }
 
     /**
-     * Sets Pieces in Board after Player arranged pieces to their liking prior to game start.
-     * @param playerBoard - Board with configuration of Player after setup.
+     * Identifies change between two boards after move made
+     *
+     * @param oldBoard      previous state
+     * @param newBoard      new state
+     * @param currentPlayer player who initiated move
      */
-    public void setPieces(Board playerBoard){
-        this.board.setBoard(playerBoard);
+    public void identifyBoardChange(Board oldBoard, Board newBoard, Player currentPlayer) {
+        // Check all positions on the board to find original and new position
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 10; x++) {
+                Piece oldPiece = oldBoard.getField(y, x);
+                Piece newPiece = newBoard.getField(y, x);
+                // if new positionment of piece is a null space, simply move it.
+                if (oldPiece == null) {
+                    this.board.setField(y, x, newPiece);
+                    return;
+                }
+                // Check for piece in new board != old board
+                if (!newPiece.equals(oldPiece)) {
+                    //check outcome of overlap
+                    checkOverlap(oldPiece, newPiece, y, x);
+                }
+            }
+        }
     }
 
-    /**
-     * checks if Pieces collide after update. Calls GamePlay Service to check outcome if so.
-     * @param y - Row of updated position
-     * @param x - Column of updated position
-     * @return - boolean for the moment
-     */
-
-    public boolean checkOverlap(int y, int x, Piece piece, Player player) {
-
-        Piece existingPiece = this.board.getField(y, x);
-
-        // check if attacking piece can move
-        /* already checked client side
-        if (!GamePlaySession.isPieceMovable(this.board, piece)) {
-            return false;  // no move possible
-        }
-
-         */
-
-        if (existingPiece != null) {
-            // Ensure piece belongs to opponent
-            if (existingPiece.getColor() != piece.getColor()) {
-                if (existingPiece.getRank() == Rank.FLAG) {
-                    GamePlaySession.checkFlagCaptured(this.board, piece.getColor(), y,x);
-                    this.currentGameState = GameState.DONE;
-                    return true;
-                } else {
-                    //resolve battle
-                    boolean victory = GamePlaySession.fight(piece, existingPiece);
-                    if (victory) {
-                        // Win - replace the opponent's piece
-                        this.board.setField(y, x, piece);
-                        return true;
-                    } else {
-                        // Lose - remove the attacking piece
-                        //this.board.setField(piece.getPreviousY(), piece.getPreviousX(), null); the square of the attacking piece must be set null
-                        return false;
-                    }
-                }
-            } else {
-                //no move possible
-                this.currentGameState = GameState.DONE;
+    public boolean checkOverlap(Piece oldPiece, Piece newPiece, int y, int x){
+        if (oldPiece.getRank() == Rank.FLAG) {
+            GamePlaySession.checkFlagCaptured(this.board, newPiece.getColor(), y, x);
+            this.currentGameState = GameState.DONE;
+            return true;
+        } else {
+            //resolve battle
+            boolean victory = GamePlaySession.fight(newPiece, oldPiece);
+            if (victory) {
+                // Win - replace the opponent's piece
+                this.board.setField(y, x, newPiece);
                 return true;
             }
-        } else {
-            // Move to an empty square is always valid
-            this.board.setField(y, x, piece);
+            return false;
         }
-        return false;
     }
 
     public void close(){
@@ -131,13 +115,7 @@ public class SessionService implements SessionServiceI{
 
     public void setPlayerRed(Player newPlayer){
         this.playerRed = newPlayer;
-        this.currentGameState = GameState.SETUP;
-    }
-
-    public void setBoard(Board board){
-        setup += 1;
-        this.board.setBoard(board);
-        if(setup == 2) this.currentGameState = GameState.INGAME;
+        this.currentGameState = GameState.INGAME;
     }
 
     public Board getBoard(){
@@ -170,6 +148,10 @@ public class SessionService implements SessionServiceI{
 
     public static  List<Player> getActivePlayers(){
         return activePlayers;
+    }
+
+    public static Player getPlayerByID(int id){
+        return activePlayers.stream().filter(p -> p.getId() == id).toList().get(0);
     }
 
     public boolean isClosed(){

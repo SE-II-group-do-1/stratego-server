@@ -3,21 +3,17 @@ package com.example.stratego.session;
 import com.example.stratego.session.exceptions.WrongConstructorException;
 
 public class Piece {
-    private static int nextID = 0;
     private Rank rank;
     private boolean isVisible;
     private boolean isMovable;
 
     private Color color;
-    private int id;
 
     public Piece(Rank rank, Color color){
-        this.id = nextID;
         this.color = color;
         this.rank = rank;
         this.isVisible = false;
         this.isMovable = rank != Rank.LAKE && rank != Rank.FLAG && rank != Rank.BOMB;
-        nextID++;
     }
 
     /**
@@ -30,7 +26,6 @@ public class Piece {
         this.rank = rank;
         this.isVisible = true;
         this.isMovable = false;
-        this.id = -1;
         this.color = null;
     }
 
@@ -50,7 +45,4 @@ public class Piece {
         return color;
     }
 
-    public int getId() {
-        return id;
-    }
 }

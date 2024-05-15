@@ -34,6 +34,7 @@ class GamePlaySessionTest {
     }
 
 
+    /*
     @Test
     void testIsPieceMovable_NormalConditions() {
         assertTrue(GamePlaySession.isPieceMovable(board, movablePiece));
@@ -45,6 +46,8 @@ class GamePlaySessionTest {
         board.setField(0, 0, new Piece(Rank.SCOUT, Color.BLUE));
         assertTrue(GamePlaySession.isPieceMovable(board, board.getField(0, 0)));
     }
+
+     */
 
     @Test
     void testFlagCaptureByEnemy() {

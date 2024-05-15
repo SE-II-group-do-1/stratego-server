@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Map.entry;
-
 @Controller
 public class WebSocketLobbyController {
 
@@ -37,45 +35,28 @@ public class WebSocketLobbyController {
             if(session.getCurrentGameState() == GameState.WAITING && !session.getPlayerBlue().getUsername().equals(player.getUsername())){
                 session.setPlayerRed(player);
                 toReturn.put("id", session.getId());
-                toReturn.put("playerBlue", session.getPlayerBlue());
-                toReturn.put("playerRed", player);
+                toReturn.put("playerBlueName", session.getPlayerBlue().getUsername());
+                toReturn.put("playerBlueID", session.getPlayerBlue().getId());
+                toReturn.put("playerRedName", player.getUsername());
+                toReturn.put("playerRedID", player.getId());
                 this.template.convertAndSend("/topic/reply", toReturn);
             }
         }
-        SessionService newSession = new SessionService(player);
-        toReturn.put("id", newSession.getId());
-        toReturn.put("playerBlue", player);
-    }
-
-    @MessageMapping("/setup")
-    public void setBoard(Map<String, Object> message){
-        Player sender = (Player) message.get("player");
-        Board board = (Board) message.get("board");
-
-        SessionService session = SessionService.getActiveSessions().stream()
-                .filter( s -> s.getPlayerBlue() == sender || s.getPlayerRed() == sender)
-                .toList()
-                .get(1);
-        //checking if red/blue client side problem lol
-        //send message once both parties have setup their board
-        session.setBoard(board);
-        if(session.getCurrentGameState() == GameState.INGAME)  this.template.convertAndSend("/topic/setup-"+session.getId(), session.getBoard());
+        new SessionService(player);
     }
 
     @MessageMapping("/update")
     public void updateGame(Map<String, Object> message){
-        int y = (int) message.get("y");
-        int x = (int) message.get("x");
-        Piece piece = (Piece) message.get("piece");
-        Player initiator = (Player) message.get("initiator");
+        int initiator = (int) message.get("initiator");
+        Board board = (Board) message.get("board");
 
         SessionService session = SessionService.getActiveSessions().stream()
-                .filter( s -> s.getPlayerBlue() == initiator || s.getPlayerRed() == initiator)
+                .filter( s -> s.getPlayerBlue().getId() == initiator || s.getPlayerRed().getId() == initiator)
                 .toList()
                 .get(1);
         try {
-            session.updateBoard(y,x,piece,initiator);
-            this.template.convertAndSend("/topic/lobby-"+session.getId(),updateToObject(y,x,piece));
+            session.updateBoard(board, initiator);
+            this.template.convertAndSend("/topic/lobby-"+session.getId(),session.getBoard());
         } catch (InvalidPlayerTurnException e) {
             sendException(e);
         }
@@ -84,16 +65,26 @@ public class WebSocketLobbyController {
 
 
     @MessageMapping("/leave")
-    public void leaveLobby(Map<String, Object> message){
+    public void leaveLobby(int message){
         //check if player exists
         //check if in active lobby -> send to lobby that closed
-        int sessionID = (int) message.get("id");
-        Player player = (Player) message.get("player");
+        Player player = SessionService.getActivePlayers().stream()
+                .filter( p -> p.getId() == message)
+                .toList()
+                .get(1);
         if(SessionService.getActivePlayers().contains(player)){
+
+            int sessionID = SessionService.getActiveSessions().stream()
+                    .filter( s -> s.getPlayerBlue() == player || s.getPlayerRed() == player)
+                    .toList()
+                    .get(1)
+                    .getId();
+
             SessionService session = SessionService.getActiveSessions().stream()
                     .filter( s -> s.getId() == sessionID)
                     .toList()
                     .get(1);
+
             this.template.convertAndSend("/topic/lobby-"+session.getId(), "close");
             session.close();
             SessionService.removePlayer(player);
@@ -105,15 +96,4 @@ public class WebSocketLobbyController {
     public String sendException(Throwable exception){
         return exception.toString();
     }
-
-    private Map<String, Object> updateToObject(int y, int x, Piece piece){
-        return Map.ofEntries(
-            entry("y", y),
-            entry("x", x),
-            entry("piece", piece)
-        );
-    }
-
 }
-
-
