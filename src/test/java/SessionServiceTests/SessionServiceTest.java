@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.stratego.session.*;
 
+import java.awt.event.PaintEvent;
 import java.util.List;
 
 import static com.example.stratego.session.GameState.DONE;
@@ -104,6 +105,14 @@ class SessionServiceTest {
         session.getBoard().setField(1,1, new Piece(Rank.FLAG, Color.RED));
         session.checkOverlap(new Piece(Rank.FLAG, Color.RED), new Piece(Rank.SCOUT, Color.BLUE), 1, 1);
         assertSame(DONE, session.getCurrentGameState());
+    }
+
+    @Test
+    void testCheckOverlapVictoryAgainstPiece() {
+        Piece miner = new Piece(Rank.MINER, Color.BLUE);
+        session.getBoard().setField(1,1, new Piece(Rank.BOMB, Color.RED));
+        session.checkOverlap(new Piece(Rank.BOMB, Color.RED), miner, 1, 1);
+        assertEquals(session.getBoard().getField(1,1),miner);
     }
 
     @Test
