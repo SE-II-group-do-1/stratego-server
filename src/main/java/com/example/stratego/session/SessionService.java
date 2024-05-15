@@ -50,118 +50,53 @@ public class SessionService implements SessionServiceI{
         if (initiator != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) {
             throw new InvalidPlayerTurnException();
         }
-
-        Move move = identifyBoardChange(this.board, board);
-        if (move == null) {
-            // exception? message to user?
-            return;
-        }
-        boolean overlap = checkOverlap(move.newY, move.newX, move.piece, this.currentTurn);
-        if (move != null) {
-            if (overlap) {
-                this.board.setField(move.newY, move.newX, move.piece);
-            } else {
-                Piece oldPiece = board.getField(move.newY, move.newX); //get piece on the attacked position
-                if (oldPiece != null && oldPiece.getColor() == move.piece.getColor()) {
-                //old state remains
-                } else {
-                    this.board.setField(move.origY, move.origX, null);
-                }
-            }
-        }
+        Player player = SessionService.getActivePlayers().stream().filter(p -> p.getId() == initiator).toList().get(1);
+        identifyBoardChange(this.board, board, player);
         updatePlayerTurn();
-    }
-
-
-    /**
-     * Sets Pieces in Board after Player arranged pieces to their liking prior to game start.
-     * @param playerBoard - Board with configuration of Player after setup.
-     */
-    public void setPieces(Board playerBoard){
-        this.board.setBoard(playerBoard);
     }
 
     /**
      * Identifies change between two boards after move made
-     * @param oldBoard previous state
-     * @param newBoard new state
-     * @return object with changed parameters
+     *
+     * @param oldBoard      previous state
+     * @param newBoard      new state
+     * @param currentPlayer player who initiated move
      */
-    public Move identifyBoardChange(Board oldBoard, Board newBoard) {
-        int origY = -1, origX = -1;
-        int newY = -1, newX = -1;
-        Piece movedPiece = null;
-
-
+    public void identifyBoardChange(Board oldBoard, Board newBoard, Player currentPlayer) {
         // Check all positions on the board to find original and new position
         for (int y = 0; y < 10; y++) {
             for (int x = 0; x < 10; x++) {
                 Piece oldPiece = oldBoard.getField(y, x);
                 Piece newPiece = newBoard.getField(y, x);
-
-                // Check for piece in new board != old board
-                if (newPiece != null && (oldPiece == null || !newPiece.equals(oldPiece))) {
-                    newY = y;
-                    newX = x;
-                    movedPiece = newPiece;
+                // if new positionment of piece is a null space, simply move it.
+                if (oldPiece == null) {
+                    this.board.setField(y, x, newPiece);
+                    return;
                 }
-                // Check for piece in the old board != new board
-                if (oldPiece != null && (newPiece == null || !oldPiece.equals(newPiece))) {
-                    origY = y;
-                    origX = x;
+                // Check for piece in new board != old board
+                if (!newPiece.equals(oldPiece)) {
+                    //check outcome of overlap
+                    checkOverlap(oldPiece, newPiece, y, x);
                 }
             }
         }
-
-        // if change return old and new position of movedPiece
-        if (movedPiece != null && origY != -1 && origX != -1 && newY != -1 && newX != -1) {
-            return new Move(origY, origX, newY, newX, movedPiece);
-        }
-
-        return null; // no move made
     }
 
-
-
-    /**
-     * checks if Pieces collide after update. Calls GamePlay Service to check outcome.
-     * @param y - Row of updated position
-     * @param x - Column of updated position
-     * @return boolean if overlap true or false
-     */
-    public boolean checkOverlap(int y, int x, Piece piece, Player currentPlayer) {
-
-        Piece existingPiece = this.board.getField(y, x);
-
-        if (existingPiece != null) {
-            // Ensure piece belongs to opponent
-            if (existingPiece.getColor() != piece.getColor()) {
-                if (existingPiece.getRank() == Rank.FLAG) {
-                    GamePlaySession.checkFlagCaptured(this.board, piece.getColor(), y,x);
-                    this.currentGameState = GameState.DONE;
-                    return true;
-                } else {
-                    //resolve battle
-                    boolean victory = GamePlaySession.fight(piece, existingPiece);
-                    if (victory) {
-                        // Win - replace the opponent's piece
-                        this.board.setField(y, x, piece);
-                        return true;
-                    } else {
-                        // Lose - remove the attacking piece
-                        return false;
-                    }
-                }
-            } else {
-                //no move possible
-                this.currentGameState = GameState.DONE;
+    public boolean checkOverlap(Piece oldPiece, Piece newPiece, int y, int x){
+        if (oldPiece.getRank() == Rank.FLAG) {
+            GamePlaySession.checkFlagCaptured(this.board, newPiece.getColor(), y, x);
+            this.currentGameState = GameState.DONE;
+            return true;
+        } else {
+            //resolve battle
+            boolean victory = GamePlaySession.fight(newPiece, oldPiece);
+            if (victory) {
+                // Win - replace the opponent's piece
+                this.board.setField(y, x, newPiece);
                 return true;
             }
-        } else {
-            // Move to an empty square is always valid
-            this.board.setField(y, x, piece);
+            return false;
         }
-        return false;
     }
 
     public void close(){
