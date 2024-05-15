@@ -31,6 +31,7 @@ public class SessionService implements SessionServiceI{
         this.currentGameState = GameState.WAITING;
         this.board = new Board();
         activeSessions.add(this);
+        activePlayers.add(player1);
         nextID++;
     }
 
@@ -50,7 +51,7 @@ public class SessionService implements SessionServiceI{
         if (initiator != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) {
             throw new InvalidPlayerTurnException();
         }
-        Player player = SessionService.getActivePlayers().stream().filter(p -> p.getId() == initiator).toList().get(1);
+        Player player = getPlayerByID(initiator);
         identifyBoardChange(this.board, board, player);
         updatePlayerTurn();
     }
@@ -147,6 +148,10 @@ public class SessionService implements SessionServiceI{
 
     public static  List<Player> getActivePlayers(){
         return activePlayers;
+    }
+
+    public static Player getPlayerByID(int id){
+        return activePlayers.stream().filter(p -> p.getId() == id).toList().get(0);
     }
 
     public boolean isClosed(){
