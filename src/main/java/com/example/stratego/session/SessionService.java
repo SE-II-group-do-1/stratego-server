@@ -43,15 +43,35 @@ public class SessionService implements SessionServiceI{
 
     /**
      * updates Board when Player moves Piece/attacks.
-     * @param board - Board sent by client
-     * @param initiator - player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
+     * @param board new board state sent by client
+     * @param initiator player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
      */
     public void updateBoard(Board board, int initiator) throws InvalidPlayerTurnException {
-        if(initiator != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) throw new InvalidPlayerTurnException();
-        boolean overlap = checkOverlap(y,x, piece, initiator);
-        if(!overlap) this.board.setBoard(board);
+        if (initiator != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) {
+            throw new InvalidPlayerTurnException();
+        }
+
+        Move move = identifyBoardChange(this.board, board);
+        if (move == null) {
+            // exception? message to user?
+            return;
+        }
+        boolean overlap = checkOverlap(move.newY, move.newX, move.piece, this.currentTurn);
+        if (move != null) {
+            if (overlap) {
+                this.board.setField(move.newY, move.newX, move.piece);
+            } else {
+                Piece oldPiece = board.getField(move.newY, move.newX); //get piece on the attacked position
+                if (oldPiece != null && oldPiece.getColor() == move.piece.getColor()) {
+                //old state remains
+                } else {
+                    this.board.setField(move.origY, move.origX, null);
+                }
+            }
+        }
         updatePlayerTurn();
     }
+
 
     /**
      * Sets Pieces in Board after Player arranged pieces to their liking prior to game start.
@@ -62,13 +82,54 @@ public class SessionService implements SessionServiceI{
     }
 
     /**
-     * checks if Pieces collide after update. Calls GamePlay Service to check outcome if so.
+     * Identifies change between two boards after move made
+     * @param oldBoard previous state
+     * @param newBoard new state
+     * @return object with changed parameters
+     */
+    public Move identifyBoardChange(Board oldBoard, Board newBoard) {
+        int origY = -1, origX = -1;
+        int newY = -1, newX = -1;
+        Piece movedPiece = null;
+
+
+        // Check all positions on the board to find original and new position
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 10; x++) {
+                Piece oldPiece = oldBoard.getField(y, x);
+                Piece newPiece = newBoard.getField(y, x);
+
+                // Check for piece in new board != old board
+                if (newPiece != null && (oldPiece == null || !newPiece.equals(oldPiece))) {
+                    newY = y;
+                    newX = x;
+                    movedPiece = newPiece;
+                }
+                // Check for piece in the old board != new board
+                if (oldPiece != null && (newPiece == null || !oldPiece.equals(newPiece))) {
+                    origY = y;
+                    origX = x;
+                }
+            }
+        }
+
+        // if change return old and new position of movedPiece
+        if (movedPiece != null && origY != -1 && origX != -1 && newY != -1 && newX != -1) {
+            return new Move(origY, origX, newY, newX, movedPiece);
+        }
+
+        return null; // no move made
+    }
+
+
+
+    /**
+     * checks if Pieces collide after update. Calls GamePlay Service to check outcome.
      * @param y - Row of updated position
      * @param x - Column of updated position
-     * @return - boolean for the moment
+     * @return boolean if overlap true or false
      */
-
-    public boolean checkOverlap(int y, int x, Piece piece, Player player) {
+    public boolean checkOverlap(int y, int x, Piece piece, Player currentPlayer) {
 
         Piece existingPiece = this.board.getField(y, x);
 
@@ -88,7 +149,6 @@ public class SessionService implements SessionServiceI{
                         return true;
                     } else {
                         // Lose - remove the attacking piece
-                        //this.board.setField(piece.getPreviousY(), piece.getPreviousX(), null); the square of the attacking piece must be set null
                         return false;
                     }
                 }
