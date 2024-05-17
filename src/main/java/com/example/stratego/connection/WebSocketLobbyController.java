@@ -87,7 +87,6 @@ public class WebSocketLobbyController {
 
             this.template.convertAndSend("/topic/lobby-"+session.getId(), "close");
             session.close();
-            SessionService.removePlayer(player);
         }
     }
 
