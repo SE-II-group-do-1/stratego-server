@@ -17,6 +17,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'zulu' # Alternative distribution options are available
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Make gradlew an executable
+        run: chmod +x ./gradlew
+
+      - name: Build Java project
+        run: ./gradlew clean build
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
