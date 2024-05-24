@@ -103,6 +103,8 @@ public class SessionService implements SessionServiceI{
     public void close(){
         this.currentGameState = GameState.DONE;
         activeSessions.remove(this);
+        activePlayers.remove(playerBlue);
+        activePlayers.remove(playerRed);
     }
 
     public Player getPlayerBlue(){
