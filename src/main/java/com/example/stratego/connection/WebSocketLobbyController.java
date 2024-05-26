@@ -54,9 +54,10 @@ public class WebSocketLobbyController {
         logger.log(Level.INFO, "update endpoint reached. received: {}", message);
         int initiator = (int) message.get("initiator");
         Board board = (Board) message.get("board");
+        int lobbyID = (int) message.get("lobby");
 
         SessionService session = SessionService.getActiveSessions().stream()
-                .filter( s -> s.getPlayerBlue().getId() == initiator || s.getPlayerRed().getId() == initiator)
+                .filter( s -> s.getId() == lobbyID)
                 .toList()
                 .get(1);
         try {
