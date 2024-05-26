@@ -11,9 +11,12 @@ import org.springframework.stereotype.Controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 @Controller
 public class WebSocketLobbyController {
+
+    java.util.logging.Logger logger =  java.util.logging.Logger.getLogger(this.getClass().getName());
 
     private final SimpMessagingTemplate template;
 
@@ -24,6 +27,7 @@ public class WebSocketLobbyController {
 
     @MessageMapping("/join")
     public void joinLobby(String username) {
+        logger.log(Level.INFO, "join endpoint reached. received: {}", username);
         //check for active sessions
         //if one in waiting = add to that lobby, else create new with corresponding topic
         //usernames must be different
@@ -47,6 +51,7 @@ public class WebSocketLobbyController {
 
     @MessageMapping("/update")
     public void updateGame(Map<String, Object> message){
+        logger.log(Level.INFO, "update endpoint reached. received: {}", message);
         int initiator = (int) message.get("initiator");
         Board board = (Board) message.get("board");
 
@@ -66,7 +71,7 @@ public class WebSocketLobbyController {
 
     @MessageMapping("/leave")
     public void leaveLobby(int message){
-        //check if player exists
+        logger.log(Level.INFO, "leave endpoint reached. received: {}", message);        //check if player exists
         //check if in active lobby -> send to lobby that closed
         Player player = SessionService.getActivePlayers().stream()
                 .filter( p -> p.getId() == message)
