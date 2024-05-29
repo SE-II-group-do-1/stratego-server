@@ -119,4 +119,14 @@ class GamePlaySessionTest {
         assertTrue(GamePlaySession.fight(general, lieutenant));
     }
 
+    @Test
+    void sergeantLosingAgainstBombMakesBombVisible() {
+        Piece sergant = new Piece(Rank.SERGEANT, Color.BLUE);
+        Piece bomb = new Piece(Rank.BOMB, Color.RED);
+
+        GamePlaySession.fight(sergant,bomb);
+
+        assertTrue(bomb.isVisible());
+    }
+
 }
