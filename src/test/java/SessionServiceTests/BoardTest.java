@@ -41,10 +41,10 @@ class BoardTest {
 
     @Test
     void testSetAndGetBoard(){
-        Board secondBoard = new Board();
-        secondBoard.setField(1,2, new Piece(Rank.MAJOR, Color.BLUE));
+        Piece[][] secondBoard = new Piece[10][10];
+        secondBoard[2][1] = new Piece(Rank.MAJOR, Color.BLUE);
         testBoard.setBoard(secondBoard);
-        assertArrayEquals(secondBoard.getBoard(), testBoard.getBoard());
+        assertArrayEquals(secondBoard, testBoard.getBoard());
 
     }
 

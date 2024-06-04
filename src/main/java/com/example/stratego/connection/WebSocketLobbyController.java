@@ -58,7 +58,9 @@ public class WebSocketLobbyController {
         logger.log(Level.INFO, "update endpoint reached. received: {0}", message);
         try {
             int initiator = (int) message.get("initiator");
-            Board board = (Board) message.get("board");
+            Piece[][] fields = (Piece[][]) message.get("board");
+            Board board = new Board();
+            board.setBoard(fields);
             int lobbyID = (int) message.get("lobby");
 
             SessionService session = SessionService.getActiveSessions().stream()
@@ -66,7 +68,7 @@ public class WebSocketLobbyController {
                     .toList()
                     .get(1);
             session.updateBoard(board, initiator);
-            this.template.convertAndSend("/topic/lobby-"+session.getId(),session.getBoard());
+            this.template.convertAndSend("/topic/lobby-"+session.getId(),session.getBoard().getBoard());
         } catch (Exception e) {
             sendException(e);
         }
