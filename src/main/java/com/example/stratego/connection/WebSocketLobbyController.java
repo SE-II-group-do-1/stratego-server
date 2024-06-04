@@ -68,6 +68,7 @@ public class WebSocketLobbyController {
                     .toList()
                     .get(1);
             session.updateBoard(board, initiator);
+            logger.log(Level.INFO, "session id: {0}", session.getId());
             this.template.convertAndSend("/topic/lobby-"+session.getId(),session.getBoard().getBoard());
         } catch (Exception e) {
             sendException(e);
