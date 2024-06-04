@@ -65,6 +65,8 @@ public class WebSocketLobbyController {
             board.setBoard(fields);
             int lobbyID = (int) message.get("lobby");
 
+            logger.log(Level.INFO, "after parsing message. lobbyID: {0}", lobbyID);
+
             SessionService session = SessionService.getActiveSessions().stream()
                     .filter( s -> s.getId() == lobbyID)
                     .toList()
