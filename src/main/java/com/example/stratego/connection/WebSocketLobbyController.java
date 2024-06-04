@@ -66,7 +66,7 @@ public class WebSocketLobbyController {
             SessionService session = SessionService.getActiveSessions().stream()
                     .filter( s -> s.getId() == lobbyID)
                     .toList()
-                    .get(1);
+                    .get(0);
             session.updateBoard(board, initiator);
             logger.log(Level.INFO, "session id: {0}", session.getId());
             this.template.convertAndSend("/topic/lobby-"+session.getId(),session.getBoard().getBoard());
