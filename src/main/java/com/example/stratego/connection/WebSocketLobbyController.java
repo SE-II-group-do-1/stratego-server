@@ -57,6 +57,7 @@ public class WebSocketLobbyController {
     public void updateGame(Map<String, Object> message){
         logger.log(Level.INFO, "update endpoint reached. received: {0}", message);
         try {
+            logger.log(Level.INFO, "Start of Try Catch Blog (Debugging)");
             int initiator = (int) message.get("initiator");
             Piece[][] fields = (Piece[][]) message.get("board");
             Board board = new Board();
@@ -66,7 +67,7 @@ public class WebSocketLobbyController {
             SessionService session = SessionService.getActiveSessions().stream()
                     .filter( s -> s.getId() == lobbyID)
                     .toList()
-                    .get(0);
+                    .get(-10);
             session.updateBoard(board, initiator);
             logger.log(Level.INFO, "session id: {0}", session.getId());
             this.template.convertAndSend("/topic/lobby-"+session.getId(),session.getBoard().getBoard());
