@@ -45,6 +45,7 @@ public class WebSocketLobbyController {
                     toReturn.put("playerRedName", player.getUsername());
                     toReturn.put("playerRedID", player.getId());
                     this.template.convertAndSend("/topic/reply", toReturn);
+                    return;
                 }
             }
             new SessionService(player);
