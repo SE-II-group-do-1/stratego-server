@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +56,21 @@ public class WebSocketLobbyController {
     }
 
     @MessageMapping("/update")
+<<<<<<< Updated upstream
     public void updateGame(Map<String, Object> message){
         logger.log(Level.INFO, "update endpoint reached. received: {0}", message);
+=======
+    public void updateGame(UpdateMessage updateMessage){
+        logger.log(Level.INFO, "update endpoint reached. received: {}", updateMessage);
+        int initiator = updateMessage.getInitiator();
+        Board board = updateMessage.getBoard();
+        int lobbyID = updateMessage.getLobbyID();
+
+        SessionService session = SessionService.getActiveSessions().stream()
+                .filter( s -> s.getId() == lobbyID)
+                .toList()
+                .get(0);
+>>>>>>> Stashed changes
         try {
             logger.log(Level.INFO, "Start of Try Catch Blog (Debugging)");
             int initiator = (int) message.get("initiator");
@@ -72,9 +86,14 @@ public class WebSocketLobbyController {
                     .toList()
                     .get(-10);
             session.updateBoard(board, initiator);
+<<<<<<< Updated upstream
             logger.log(Level.INFO, "session id: {0}", session.getId());
             this.template.convertAndSend("/topic/lobby-"+session.getId(),session.getBoard().getBoard());
         } catch (Exception e) {
+=======
+            this.template.convertAndSend("/topic/lobby-"+lobbyID,session.getBoard());
+        } catch (InvalidPlayerTurnException e) {
+>>>>>>> Stashed changes
             sendException(e);
         }
     }

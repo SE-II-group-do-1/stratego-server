@@ -48,7 +48,7 @@ public class SessionService implements SessionServiceI{
      * @param initiator player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
      */
     public void updateBoard(Board board, int initiator) throws InvalidPlayerTurnException {
-        if (initiator != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) {
+        if (initiator -1  != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) {
             throw new InvalidPlayerTurnException();
         }
         Player player = getPlayerByID(initiator);

@@ -1,8 +1,14 @@
 package com.example.stratego.session;
 
 import com.example.stratego.session.exceptions.WrongConstructorException;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+//@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class Board {
+
+    @JsonProperty("fields")
     private Piece[][] fields;
 
     public Board(){

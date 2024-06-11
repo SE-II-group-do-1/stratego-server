@@ -1,9 +1,12 @@
 package com.example.stratego.session;
 
 import com.example.stratego.session.exceptions.WrongConstructorException;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Piece {
     private Rank rank;
+
     private boolean isVisible;
     private boolean isMovable;
 
@@ -29,6 +32,17 @@ public class Piece {
         this.color = null;
     }
 
+    @JsonCreator
+    public Piece(@JsonProperty("color") Color color,
+                 @JsonProperty("isMovable") boolean isMovable,
+                 @JsonProperty("isVisible") boolean isVisible,
+                 @JsonProperty("rank") Rank rank) {
+        this.color = color;
+        this.isMovable = isMovable;
+        this.isVisible = isVisible;
+        this.rank = rank;
+    }
+
     public Rank getRank() {
         return rank;
     }
@@ -37,6 +51,9 @@ public class Piece {
         return isVisible;
     }
 
+    public void setVisible(boolean visible) {
+        isVisible = visible;
+    }
     public boolean isMovable() {
         return isMovable;
     }
