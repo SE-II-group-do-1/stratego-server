@@ -33,44 +33,13 @@
                 throw new IllegalArgumentException("Some Piece is missing!");
             }
 
-            // First handle special pieces interactions
-            return handleSpecialCases(attacker, defender);
+            Boolean outcome = FightOutcomes.getFightOutcome(attacker.getRank(), defender.getRank());
+            if (outcome != null) {
+                return outcome;
+            }
+
+            // Default case, should never reach here if all cases are covered
+            throw new IllegalStateException("Fight outcome not defined for the given ranks.");
         }
-        private static boolean handleSpecialCases(Piece attacker, Piece defender) {
-            // Check for Spy attacking a Marshal
-            if (attacker.getRank() == Rank.SPY && defender.getRank() == Rank.MARSHAL) {
-                return true; // Spy wins when attacking Marshal
-            }
-
-            // Check for Miner attacking a Bomb
-            if (attacker.getRank() == Rank.MINER && defender.getRank() == Rank.BOMB) {
-                return true; // Miner defuses Bomb
-            }
-
-            // Bomb destroys any attacker except Miner
-            if (defender.getRank() == Rank.BOMB) {
-                return false; // Any piece other than Miner attacking a Bomb loses
-            }
-
-            // TODO think of more edge cases
-
-            // If no special cases apply, fall back to general fight resolution
-            return resolveGeneralFight(attacker, defender);
-        }
-        private static boolean resolveGeneralFight(Piece attacker, Piece defender) {
-            // Retrieve values from the RankValues map
-            int attackerValue = RankValues.getRankValue(attacker.getRank());
-            int defenderValue = RankValues.getRankValue(defender.getRank());
-
-            // Handle case where both have the same rank
-            if (attackerValue == defenderValue) {
-                return false; // Indicate that the fight results in a tie (both pieces are removed)
-            }
-
-            // Higher rank wins
-            return attackerValue > defenderValue;
-        }
-
-
 
     }
