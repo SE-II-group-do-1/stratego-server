@@ -76,6 +76,32 @@ public class WebSocketLobbyController {
         }
     }
 
+    @MessageMapping("/setup")
+    public void setupGame(UpdateMessage updateMessage) {
+        try {
+            int initiator = updateMessage.getInitiator();
+            Board board = updateMessage.getBoard();
+            int lobbyID = updateMessage.getLobbyID();
+
+
+            SessionService session = SessionService.getActiveSessions().stream()
+                    .filter(s -> s.getId() == lobbyID)
+                    .toList()
+                    .get(0);
+
+            // (Scope SessionService)
+            // Neue Methode (SessionService), die Player 1 und Player 2 synced
+            // Methode muss als Rückgabewert ein Boolean haben
+            // true => wenn beide Boards gesetzt wurden
+            // if true
+            // this.template.convertAndSend("/topic/lobby-" + lobbyID, session.getBoard());
+            // Change currentGameState to INGAME, only when both boards are set
+
+        } catch (Exception e) {
+            sendException(e);
+        }
+    }
+
 
     @MessageMapping("/leave")
     public void leaveLobby(int message) {
