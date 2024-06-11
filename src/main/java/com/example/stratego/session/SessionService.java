@@ -48,9 +48,9 @@ public class SessionService implements SessionServiceI{
      * @param initiator player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
      */
     public void updateBoard(Board board, int initiator) throws InvalidPlayerTurnException {
-        if (initiator -1  != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) {
+        /*if (initiator != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) {
             throw new InvalidPlayerTurnException();
-        }
+        }*/
         Player player = getPlayerByID(initiator);
         identifyBoardChange(this.board, board, player);
         updatePlayerTurn();
@@ -72,10 +72,9 @@ public class SessionService implements SessionServiceI{
                 // if new positionment of piece is a null space, simply move it.
                 if (oldPiece == null) {
                     this.board.setField(y, x, newPiece);
-                    return;
                 }
                 // Check for piece in new board != old board
-                if (!newPiece.equals(oldPiece)) {
+                else if (!newPiece.equals(oldPiece)) {
                     //check outcome of overlap
                     checkOverlap(oldPiece, newPiece, y, x);
                 }
