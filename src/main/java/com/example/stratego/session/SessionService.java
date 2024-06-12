@@ -45,7 +45,7 @@ public class SessionService implements SessionServiceI{
      * @param board - the player's board
      * @return
      */
-    public boolean setPlayerBoard(int id, Board board){
+    public synchronized boolean setPlayerBoard(int id, Board board){
         //return false if player not in session
         if(this.playerBlue.getId() != id && this.playerRed.getId() != id) return false;
         this.board.setBoard(board.getBoard());
