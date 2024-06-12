@@ -42,8 +42,17 @@ public class Board {
 
     public void setBoard(Piece[][] newFields){
         for(int y=0; y<10;y++){
+            System.arraycopy(newFields[y], 0, this.fields[y], 0, 10);
+        }
+    }
+
+    public void mergeBoard(Board b){
+        Piece[][] newFields = b.getBoard();
+        for(int y=0; y<10; y++){
             for(int x=0; x<10; x++){
-                this.fields[y][x] = newFields[y][x];
+                if(this.fields[y][x] == null){
+                    this.fields[y][x] = newFields[y][x];
+                }
             }
         }
     }

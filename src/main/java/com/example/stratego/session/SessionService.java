@@ -50,7 +50,7 @@ public class SessionService implements SessionServiceI{
     public synchronized boolean setPlayerBoard(int id, Board board){
         //return false if player not in session
         if(this.playerBlue.getId() != id && this.playerRed.getId() != id) return false;
-        this.board.setBoard(board.getBoard());
+        this.board.mergeBoard(board);
         this.setBoard.add(id);
         if(this.setBoard.contains(this.playerBlue.getId()) && this.setBoard.contains(this.playerRed.getId())){
             this.currentGameState = GameState.INGAME;
