@@ -4,7 +4,6 @@ import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class SessionService implements SessionServiceI{
@@ -50,7 +49,11 @@ public class SessionService implements SessionServiceI{
         if(this.playerBlue.getId() != id && this.playerRed.getId() != id) return false;
         this.board.setBoard(board.getBoard());
         this.setBoard.add(id);
-        return this.setBoard.contains(this.playerBlue.getId()) && this.setBoard.contains(this.playerRed.getId());
+        if(this.setBoard.contains(this.playerBlue.getId()) && this.setBoard.contains(this.playerRed.getId())){
+            this.currentGameState = GameState.INGAME;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -66,9 +69,9 @@ public class SessionService implements SessionServiceI{
      * @param initiator player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
      */
     public void updateBoard(Board board, int initiator) throws InvalidPlayerTurnException {
-        /*if (initiator != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) {
+        if (initiator != this.currentTurn.getId() || this.currentGameState == GameState.WAITING) {
             throw new InvalidPlayerTurnException();
-        }*/
+        }
         Player player = getPlayerByID(initiator);
         identifyBoardChange(this.board, board, player);
         updatePlayerTurn();
@@ -134,7 +137,6 @@ public class SessionService implements SessionServiceI{
 
     public void setPlayerRed(Player newPlayer){
         this.playerRed = newPlayer;
-        this.currentGameState = GameState.INGAME;
     }
 
     public Board getBoard(){
