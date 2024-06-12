@@ -4,6 +4,7 @@ import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SessionService implements SessionServiceI{
@@ -16,6 +17,7 @@ public class SessionService implements SessionServiceI{
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
+    private ArrayList<Integer> setBoard;
 
 
     /**
@@ -29,10 +31,26 @@ public class SessionService implements SessionServiceI{
         this.playerBlue = player1;
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
+        this.setBoard = new ArrayList<>();
         this.board = new Board();
         activeSessions.add(this);
         activePlayers.add(player1);
         nextID++;
+    }
+
+
+    /**
+     * sets Board setup for both players. returns true if both players submitted board. ready to play.
+     * @param id - player id that sent their setup
+     * @param board - the player's board
+     * @return
+     */
+    public boolean setPlayerBoard(int id, Board board){
+        //return false if player not in session
+        if(this.playerBlue.getId() != id && this.playerRed.getId() != id) return false;
+        this.board.setBoard(board.getBoard());
+        this.setBoard.add(id);
+        return this.setBoard.contains(this.playerBlue.getId()) && this.setBoard.contains(this.playerRed.getId());
     }
 
     /**

@@ -89,13 +89,11 @@ public class WebSocketLobbyController {
                     .toList()
                     .get(0);
 
-            // (Scope SessionService)
-            // Neue Methode (SessionService), die Player 1 und Player 2 synced
-            // Methode muss als Rückgabewert ein Boolean haben
-            // true => wenn beide Boards gesetzt wurden
-            // if true
-            // this.template.convertAndSend("/topic/lobby-" + lobbyID, session.getBoard());
             // Change currentGameState to INGAME, only when both boards are set
+            boolean bothPlayersSet = session.setPlayerBoard(initiator, board);
+            if(bothPlayersSet){
+                this.template.convertAndSend("/topic/lobby-" + lobbyID, session.getBoard());
+            }
 
         } catch (Exception e) {
             sendException(e);
