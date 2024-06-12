@@ -8,10 +8,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 @Controller
@@ -35,17 +33,17 @@ public class WebSocketLobbyController {
             //usernames must be different
             //return lobby ID, both players (return only when session full)
             Player player = SessionService.newPlayer(username);
-            Map<String, Object> toReturn = new HashMap<>();
+            LobbyMessage response = new LobbyMessage();
             List<SessionService> active = SessionService.getActiveSessions();
             for (SessionService session : active) {
                 if (session.getCurrentGameState() == GameState.WAITING && !session.getPlayerBlue().getUsername().equals(player.getUsername())) {
                     session.setPlayerRed(player);
-                    toReturn.put("id", session.getId());
-                    toReturn.put("playerBlueName", session.getPlayerBlue().getUsername());
-                    toReturn.put("playerBlueID", session.getPlayerBlue().getId());
-                    toReturn.put("playerRedName", player.getUsername());
-                    toReturn.put("playerRedID", player.getId());
-                    this.template.convertAndSend("/topic/reply", toReturn);
+
+                    response.setBlue(session.getPlayerBlue());
+                    response.setRed(session.getPlayerRed());
+                    response.setLobbyID(session.getId());
+
+                    this.template.convertAndSend("/topic/reply", response);
                     return;
                 }
             }
