@@ -5,7 +5,10 @@ import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SessionService implements SessionServiceI{
     private static int nextID = 0;
@@ -17,8 +20,7 @@ public class SessionService implements SessionServiceI{
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
-    private ArrayList<Integer> setBoard;
-
+    private HashSet<Integer> setBoard;
 
     /**
      * Session Service - manages "lobbys", keeps track of current game/board and associated players.
@@ -31,7 +33,7 @@ public class SessionService implements SessionServiceI{
         this.playerBlue = player1;
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
-        this.setBoard = new ArrayList<>(Collections.nCopies(2, null));
+        this.setBoard = new HashSet<>(2);
         this.board = new Board();
         activeSessions.add(this);
         activePlayers.add(player1);
