@@ -4,6 +4,7 @@ import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SessionService implements SessionServiceI{
@@ -30,7 +31,7 @@ public class SessionService implements SessionServiceI{
         this.playerBlue = player1;
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
-        this.setBoard = new ArrayList<>();
+        this.setBoard = new ArrayList<>(Collections.nCopies(2, null));
         this.board = new Board();
         activeSessions.add(this);
         activePlayers.add(player1);
