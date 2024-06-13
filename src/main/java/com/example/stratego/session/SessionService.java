@@ -94,16 +94,18 @@ public class SessionService implements SessionServiceI{
                 Piece oldPiece = oldBoard.getField(y, x);
                 Piece newPiece = newBoard.getField(y, x);
                 // if new positionment of piece is a null space, simply move it.
-                if (oldPiece == null && newPiece != null) {
-                    this.board.setField(y, x, newPiece);
+
+                if(oldPiece != null && newPiece != null){
+                    checkOverlap(oldPiece, newPiece, y, x);
                 }
-                if(newPiece == null){
+                else if (oldPiece != null && newPiece == null) {
                     this.board.setField(y, x, null);
                 }
-                // Check for piece in new board != old board
-                else if (!newPiece.equals(oldPiece)) {
-                    //check outcome of overlap
-                    checkOverlap(oldPiece, newPiece, y, x);
+                else if(oldPiece == null && newPiece != null){
+                    this.board.setField(y, x, newPiece);
+                }
+                else{
+                    this.board.setField(y, x, null);
                 }
             }
         }
