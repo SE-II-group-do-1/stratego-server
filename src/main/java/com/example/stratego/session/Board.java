@@ -1,8 +1,14 @@
 package com.example.stratego.session;
 
 import com.example.stratego.session.exceptions.WrongConstructorException;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+//@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class Board {
+
+    @JsonProperty("fields")
     private Piece[][] fields;
 
     public Board(){
@@ -34,11 +40,19 @@ public class Board {
         return fields;
     }
 
-    public void setBoard(Board newBoard){
-        Piece[][] newFields = newBoard.getBoard();
+    public void setBoard(Piece[][] newFields){
         for(int y=0; y<10;y++){
+            System.arraycopy(newFields[y], 0, this.fields[y], 0, 10);
+        }
+    }
+
+    public void mergeBoard(Board b){
+        Piece[][] newFields = b.getBoard();
+        for(int y=0; y<10; y++){
             for(int x=0; x<10; x++){
-                if(newFields[y][x] != null) this.fields[y][x] = newFields[y][x];
+                if(this.fields[y][x] == null){
+                    this.fields[y][x] = newFields[y][x];
+                }
             }
         }
     }

@@ -4,7 +4,11 @@ import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SessionService implements SessionServiceI{
     private static int nextID = 0;
@@ -16,7 +20,7 @@ public class SessionService implements SessionServiceI{
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
-
+    private HashSet<Integer> setBoard;
 
     /**
      * Session Service - manages "lobbys", keeps track of current game/board and associated players.
@@ -29,10 +33,30 @@ public class SessionService implements SessionServiceI{
         this.playerBlue = player1;
         this.currentTurn = player1;
         this.currentGameState = GameState.WAITING;
+        this.setBoard = new HashSet<>(2);
         this.board = new Board();
         activeSessions.add(this);
         activePlayers.add(player1);
         nextID++;
+    }
+
+
+    /**
+     * sets Board setup for both players. returns true if both players submitted board. ready to play.
+     * @param id - player id that sent their setup
+     * @param board - the player's board
+     * @return
+     */
+    public synchronized boolean setPlayerBoard(int id, Board board){
+        //return false if player not in session
+        if(this.playerBlue.getId() != id && this.playerRed.getId() != id) return false;
+        this.board.mergeBoard(board);
+        this.setBoard.add(id);
+        if(this.setBoard.contains(this.playerBlue.getId()) && this.setBoard.contains(this.playerRed.getId())){
+            this.currentGameState = GameState.INGAME;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -70,14 +94,18 @@ public class SessionService implements SessionServiceI{
                 Piece oldPiece = oldBoard.getField(y, x);
                 Piece newPiece = newBoard.getField(y, x);
                 // if new positionment of piece is a null space, simply move it.
-                if (oldPiece == null) {
-                    this.board.setField(y, x, newPiece);
-                    return;
-                }
-                // Check for piece in new board != old board
-                if (!newPiece.equals(oldPiece)) {
-                    //check outcome of overlap
+
+                if(oldPiece != null && newPiece != null){
                     checkOverlap(oldPiece, newPiece, y, x);
+                }
+                else if (oldPiece != null && newPiece == null) {
+                    this.board.setField(y, x, null);
+                }
+                else if(oldPiece == null && newPiece != null){
+                    this.board.setField(y, x, newPiece);
+                }
+                else{
+                    this.board.setField(y, x, null);
                 }
             }
         }
@@ -117,7 +145,6 @@ public class SessionService implements SessionServiceI{
 
     public void setPlayerRed(Player newPlayer){
         this.playerRed = newPlayer;
-        this.currentGameState = GameState.INGAME;
     }
 
     public Board getBoard(){

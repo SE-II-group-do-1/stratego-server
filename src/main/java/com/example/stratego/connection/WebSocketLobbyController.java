@@ -8,15 +8,14 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 
 @Controller
 public class WebSocketLobbyController {
 
-    java.util.logging.Logger logger =  java.util.logging.Logger.getLogger(this.getClass().getName());
+    java.util.logging.Logger logger = java.util.logging.Logger.getLogger(this.getClass().getName());
 
     private final SimpMessagingTemplate template;
 
@@ -27,78 +26,112 @@ public class WebSocketLobbyController {
 
     @MessageMapping("/join")
     public void joinLobby(String username) {
-        logger.log(Level.INFO, "join endpoint reached. received: {}", username);
-        //check for active sessions
-        //if one in waiting = add to that lobby, else create new with corresponding topic
-        //usernames must be different
-        //return lobby ID, both players (return only when session full)
-        Player player = SessionService.newPlayer(username);
-        Map<String, Object> toReturn = new HashMap<>();
-        List<SessionService> active = SessionService.getActiveSessions();
-        for(SessionService session: active){
-            if(session.getCurrentGameState() == GameState.WAITING && !session.getPlayerBlue().getUsername().equals(player.getUsername())){
-                session.setPlayerRed(player);
-                toReturn.put("id", session.getId());
-                toReturn.put("playerBlueName", session.getPlayerBlue().getUsername());
-                toReturn.put("playerBlueID", session.getPlayerBlue().getId());
-                toReturn.put("playerRedName", player.getUsername());
-                toReturn.put("playerRedID", player.getId());
-                this.template.convertAndSend("/topic/reply", toReturn);
+        logger.log(Level.INFO, "join endpoint reached. received: {0}", username);
+        try {
+            //check for active sessions
+            //if one in waiting = add to that lobby, else create new with corresponding topic
+            //usernames must be different
+            //return lobby ID, both players (return only when session full)
+            Player player = SessionService.newPlayer(username);
+            LobbyMessage response = new LobbyMessage();
+            List<SessionService> active = SessionService.getActiveSessions();
+            for (SessionService session : active) {
+                if (session.getCurrentGameState() == GameState.WAITING && !session.getPlayerBlue().getUsername().equals(player.getUsername())) {
+                    session.setPlayerRed(player);
+
+                    response.setBlue(session.getPlayerBlue());
+                    response.setRed(session.getPlayerRed());
+                    response.setLobbyID(session.getId());
+
+                    this.template.convertAndSend("/topic/reply", response);
+                    return;
+                }
             }
+            new SessionService(player);
+        } catch (Exception e) {
+            sendException(e);
         }
-        new SessionService(player);
     }
 
     @MessageMapping("/update")
-    public void updateGame(Map<String, Object> message){
-        logger.log(Level.INFO, "update endpoint reached. received: {}", message);
-        int initiator = (int) message.get("initiator");
-        Board board = (Board) message.get("board");
-        int lobbyID = (int) message.get("lobby");
-
-        SessionService session = SessionService.getActiveSessions().stream()
-                .filter( s -> s.getId() == lobbyID)
-                .toList()
-                .get(1);
+    public void updateGame(UpdateMessage updateMessage) {
+        logger.log(Level.INFO, "update endpoint reached. received: {}", updateMessage);
         try {
+            int initiator = updateMessage.getInitiator();
+            Board board = updateMessage.getBoard();
+            int lobbyID = updateMessage.getLobbyID();
+
+            SessionService session = SessionService.getActiveSessions().stream()
+                    .filter(s -> s.getId() == lobbyID)
+                    .toList()
+                    .get(0);
+
+
             session.updateBoard(board, initiator);
-            this.template.convertAndSend("/topic/lobby-"+session.getId(),session.getBoard());
+            this.template.convertAndSend("/topic/lobby-" + lobbyID, session.getBoard());
         } catch (InvalidPlayerTurnException e) {
             sendException(e);
         }
     }
 
+    @MessageMapping("/setup")
+    public void setupGame(UpdateMessage updateMessage) {
+        try {
+            int initiator = updateMessage.getInitiator();
+            Board board = updateMessage.getBoard();
+            int lobbyID = updateMessage.getLobbyID();
+
+
+            SessionService session = SessionService.getActiveSessions().stream()
+                    .filter(s -> s.getId() == lobbyID)
+                    .toList()
+                    .get(0);
+
+            // Change currentGameState to INGAME, only when both boards are set
+            boolean bothPlayersSet = session.setPlayerBoard(initiator, board);
+            if(bothPlayersSet){
+                this.template.convertAndSend("/topic/lobby-" + lobbyID, session.getBoard());
+            }
+
+        } catch (Exception e) {
+            sendException(e);
+        }
+    }
 
 
     @MessageMapping("/leave")
-    public void leaveLobby(int message){
-        logger.log(Level.INFO, "leave endpoint reached. received: {}", message);        //check if player exists
+    public void leaveLobby(int message) {
+        logger.log(Level.INFO, "leave endpoint reached. received: {0}", message);        //check if player exists
         //check if in active lobby -> send to lobby that closed
-        Player player = SessionService.getActivePlayers().stream()
-                .filter( p -> p.getId() == message)
-                .toList()
-                .get(1);
-        if(SessionService.getActivePlayers().contains(player)){
-
-            int sessionID = SessionService.getActiveSessions().stream()
-                    .filter( s -> s.getPlayerBlue() == player || s.getPlayerRed() == player)
-                    .toList()
-                    .get(1)
-                    .getId();
-
-            SessionService session = SessionService.getActiveSessions().stream()
-                    .filter( s -> s.getId() == sessionID)
+        try {
+            Player player = SessionService.getActivePlayers().stream()
+                    .filter(p -> p.getId() == message)
                     .toList()
                     .get(1);
+            if (SessionService.getActivePlayers().contains(player)) {
 
-            this.template.convertAndSend("/topic/lobby-"+session.getId(), "close");
-            session.close();
+                int sessionID = SessionService.getActiveSessions().stream()
+                        .filter(s -> s.getPlayerBlue() == player || s.getPlayerRed() == player)
+                        .toList()
+                        .get(1)
+                        .getId();
+
+                SessionService session = SessionService.getActiveSessions().stream()
+                        .filter(s -> s.getId() == sessionID)
+                        .toList()
+                        .get(1);
+
+                this.template.convertAndSend("/topic/lobby-" + session.getId(), "close");
+                session.close();
+            }
+        } catch (Exception e) {
+            sendException(e);
         }
     }
 
     @MessageExceptionHandler
     @SendToUser("/topic/errors")
-    public String sendException(Throwable exception){
+    public String sendException(Throwable exception) {
         return exception.toString();
     }
 }
