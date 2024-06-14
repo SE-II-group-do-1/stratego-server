@@ -173,6 +173,11 @@ class SessionServiceTest {
     }
 
     @Test
+    void testGetSessionByIDFalse(){
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> SessionService.getSessionByID(99));
+    }
+
+    @Test
     void testAssignToSession(){
         assertTrue(SessionService.assignToSession(redPlayer));
     }
@@ -187,6 +192,11 @@ class SessionServiceTest {
     @Test
     void testGetSessionByPlayer(){
         assertEquals(session, SessionService.getSessionByPlayer(testPlayer));
+    }
+
+    @Test
+    void testGetSessionByPlayerFalse(){
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> SessionService.getSessionByPlayer(new Player("fake")));
     }
 
     @Test
