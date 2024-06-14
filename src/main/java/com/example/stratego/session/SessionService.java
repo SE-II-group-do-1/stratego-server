@@ -4,11 +4,8 @@ import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class SessionService implements SessionServiceI{
     private static int nextID = 0;
@@ -109,15 +106,10 @@ public class SessionService implements SessionServiceI{
                 if(oldPiece != null && newPiece != null){
                     checkOverlap(oldPiece, newPiece, y, x);
                 }
-                else if (oldPiece != null && newPiece == null) {
+                else if (oldPiece != null ) {
                     this.board.setField(y, x, null);
                 }
-                else if(oldPiece == null && newPiece != null){
-                    this.board.setField(y, x, newPiece);
-                }
-                else{
-                    this.board.setField(y, x, null);
-                }
+                else this.board.setField(y, x, newPiece);
             }
         }
     }

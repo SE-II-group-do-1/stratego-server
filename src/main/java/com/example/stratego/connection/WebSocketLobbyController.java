@@ -9,7 +9,6 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
 
-import java.util.List;
 import java.util.logging.Level;
 
 @Controller
