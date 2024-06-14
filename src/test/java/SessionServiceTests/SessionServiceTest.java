@@ -1,11 +1,9 @@
 package SessionServiceTests;
 
-import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.stratego.session.*;
@@ -14,9 +12,7 @@ import java.util.List;
 
 import static com.example.stratego.session.GameState.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -148,6 +144,25 @@ class SessionServiceTest {
         session.close();
         assertTrue(session.isClosed());
         assertFalse(SessionService.getActiveSessions().contains(session));
+    }
+
+    @Test
+    void testGetSessionByID(){
+        Player test = new Player("test");
+        SessionService session = new SessionService(test);
+        assertEquals(session, SessionService.getSessionByID(session.getId()));
+    }
+
+    @Test
+    void testAssignToSession(){
+        assertTrue(SessionService.assignToSession(redPlayer));
+    }
+
+    @Test
+    void testGetSessionByPlayer(){
+        Player test = new Player("test");
+        SessionService session = new SessionService(test);
+        assertEquals(session, SessionService.getSessionByPlayer(test));
     }
 
     @Test
