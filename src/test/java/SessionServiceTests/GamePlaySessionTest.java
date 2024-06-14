@@ -101,6 +101,7 @@ class GamePlaySessionTest {
         assertFalse(GamePlaySession.fight(lieutenant, captain));
     }
 
+    //TODO Should kill both pieces
     @Test
     void testFight_EqualRank() {
         Piece captainBlue = new Piece(Rank.CAPTAIN, Color.BLUE);
