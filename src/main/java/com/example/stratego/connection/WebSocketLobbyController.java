@@ -29,28 +29,18 @@ public class WebSocketLobbyController {
     public void joinLobby(String username) {
         logger.log(Level.INFO, "join endpoint reached. received: {0}", username);
         try {
-            //check for active sessions
-            //if one in waiting = add to that lobby, else create new with corresponding topic
-            //usernames must be different
-            //return lobby ID, both players (return only when session full)
-            //TODO: new funtion assignToSession
+
             Player player = SessionService.newPlayer(username);
             LobbyMessage response = new LobbyMessage();
-            List<SessionService> active = SessionService.getActiveSessions();
-            for (SessionService session : active) {
-                if (session.getCurrentGameState() == GameState.WAITING && !session.getPlayerBlue().getUsername().equals(player.getUsername())) {
-                    session.setPlayerRed(player);
-
-                    response.setBlue(session.getPlayerBlue());
-                    response.setRed(session.getPlayerRed());
-                    response.setLobbyID(session.getId());
-
-                    //TODO: place all this.template.convertAndSend in a seperate function?
-                    this.template.convertAndSend("/topic/reply", response);
-                    return;
-                }
+            //only send response (to both players) if lobby is full
+            if(SessionService.assignToSession(player)){
+                SessionService session = SessionService.getSessionByPlayer(player);
+                response.setBlue(session.getPlayerBlue());
+                response.setRed(session.getPlayerRed());
+                response.setLobbyID(session.getId());
+                this.template.convertAndSend("/topic/reply", response);
             }
-            new SessionService(player);
+
         } catch (Exception e) {
             sendException(e);
         }

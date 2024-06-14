@@ -40,6 +40,22 @@ public class SessionService implements SessionServiceI{
         nextID++;
     }
 
+    /**
+     * Assigns new players to either a vacant position in a given session or creates a new session.
+     * @param p - the new player to be assigned to a session
+     * @return true if the session assigned to is now full, false if assigned to a new session (session not full)
+     */
+    public static boolean assignToSession(Player p){
+        for (SessionService session : activeSessions) {
+            if (session.getCurrentGameState() == GameState.WAITING && !session.getPlayerBlue().getUsername().equals(p.getUsername())) {
+                session.setPlayerRed(p);
+                return true;
+            }
+        }
+        new SessionService(p);
+        return false;
+    }
+
 
     /**
      * sets Board setup for both players. returns true if both players submitted board. ready to play.
