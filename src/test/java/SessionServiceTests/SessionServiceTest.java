@@ -79,6 +79,21 @@ class SessionServiceTest {
     }
 
     @Test
+    void testUpdateBoardNewPieceNull(){
+        Board b = new Board();
+        session.setPlayerRed(redPlayer);
+        session.setPlayerBoard(redPlayer.getId(), new Board());
+        session.setPlayerBoard(testPlayer.getId(), new Board());
+        session.getBoard().setField(0,0, new Piece(Rank.GENERAL, Color.BLUE));
+        try {
+            session.updateBoard(b, testPlayer.getId());
+        } catch (InvalidPlayerTurnException e) {
+            throw new RuntimeException(e);
+        }
+        assertNull(session.getBoard().getField(0, 0));
+    }
+
+    @Test
     void testInvalidUpdateBoard(){
         session.setPlayerRed(redPlayer);
         assertThrows(InvalidPlayerTurnException.class,() -> session.updateBoard(new Board(), redPlayer.getId()));
