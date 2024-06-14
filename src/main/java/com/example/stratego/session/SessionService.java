@@ -59,12 +59,6 @@ public class SessionService implements SessionServiceI{
         return false;
     }
 
-    /**
-     * updates the Player that is currently allowed to make a move.
-     */
-    private void updatePlayerTurn(){
-        this.currentTurn = this.currentTurn == this.playerBlue? this.playerRed : this.playerBlue;
-    }
 
     /**
      * updates Board when Player moves Piece/attacks.
@@ -77,7 +71,8 @@ public class SessionService implements SessionServiceI{
         }
         Player player = getPlayerByID(initiator);
         identifyBoardChange(this.board, board, player);
-        updatePlayerTurn();
+        //update current player turn
+        this.currentTurn = this.currentTurn == this.playerBlue? this.playerRed : this.playerBlue;
     }
 
     /**
@@ -181,6 +176,14 @@ public class SessionService implements SessionServiceI{
 
     public static Player getPlayerByID(int id){
         return activePlayers.stream().filter(p -> p.getId() == id).toList().get(0);
+    }
+
+    public static SessionService getSessionByID(int id){
+        return activeSessions.stream().filter(s -> s.getId() == id).toList().get(0);
+    }
+
+    public static SessionService getSessionByPlayer(Player p){
+        return activeSessions.stream().filter(s -> s.getPlayerBlue() == p || s.getPlayerRed() == p).toList().get(0);
     }
 
     public boolean isClosed(){

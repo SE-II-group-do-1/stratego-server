@@ -23,6 +23,7 @@ public class WebSocketLobbyController {
         this.template = template;
     }
 
+    private static final String LOBBY = "/topic/lobby-";
 
     @MessageMapping("/join")
     public void joinLobby(String username) {
@@ -32,6 +33,7 @@ public class WebSocketLobbyController {
             //if one in waiting = add to that lobby, else create new with corresponding topic
             //usernames must be different
             //return lobby ID, both players (return only when session full)
+            //TODO: new funtion assignToSession
             Player player = SessionService.newPlayer(username);
             LobbyMessage response = new LobbyMessage();
             List<SessionService> active = SessionService.getActiveSessions();
@@ -43,6 +45,7 @@ public class WebSocketLobbyController {
                     response.setRed(session.getPlayerRed());
                     response.setLobbyID(session.getId());
 
+                    //TODO: place all this.template.convertAndSend in a seperate function?
                     this.template.convertAndSend("/topic/reply", response);
                     return;
                 }
@@ -61,14 +64,9 @@ public class WebSocketLobbyController {
             Board board = updateMessage.getBoard();
             int lobbyID = updateMessage.getLobbyID();
 
-            SessionService session = SessionService.getActiveSessions().stream()
-                    .filter(s -> s.getId() == lobbyID)
-                    .toList()
-                    .get(0);
-
-
+            SessionService session = SessionService.getSessionByID(lobbyID);
             session.updateBoard(board, initiator);
-            this.template.convertAndSend("/topic/lobby-" + lobbyID, session.getBoard());
+            this.template.convertAndSend(LOBBY + lobbyID, session.getBoard());
         } catch (InvalidPlayerTurnException e) {
             sendException(e);
         }
@@ -81,16 +79,10 @@ public class WebSocketLobbyController {
             Board board = updateMessage.getBoard();
             int lobbyID = updateMessage.getLobbyID();
 
-
-            SessionService session = SessionService.getActiveSessions().stream()
-                    .filter(s -> s.getId() == lobbyID)
-                    .toList()
-                    .get(0);
-
-            // Change currentGameState to INGAME, only when both boards are set
+            SessionService session = SessionService.getSessionByID(lobbyID);
             boolean bothPlayersSet = session.setPlayerBoard(initiator, board);
             if(bothPlayersSet){
-                this.template.convertAndSend("/topic/lobby-" + lobbyID, session.getBoard());
+                this.template.convertAndSend(LOBBY + lobbyID, session.getBoard());
             }
 
         } catch (Exception e) {
@@ -104,24 +96,12 @@ public class WebSocketLobbyController {
         logger.log(Level.INFO, "leave endpoint reached. received: {0}", message);        //check if player exists
         //check if in active lobby -> send to lobby that closed
         try {
-            Player player = SessionService.getActivePlayers().stream()
-                    .filter(p -> p.getId() == message)
-                    .toList()
-                    .get(1);
+            Player player = SessionService.getPlayerByID(message);
             if (SessionService.getActivePlayers().contains(player)) {
 
-                int sessionID = SessionService.getActiveSessions().stream()
-                        .filter(s -> s.getPlayerBlue() == player || s.getPlayerRed() == player)
-                        .toList()
-                        .get(1)
-                        .getId();
+                SessionService session = SessionService.getSessionByPlayer(player);
 
-                SessionService session = SessionService.getActiveSessions().stream()
-                        .filter(s -> s.getId() == sessionID)
-                        .toList()
-                        .get(1);
-
-                this.template.convertAndSend("/topic/lobby-" + session.getId(), "close");
+                this.template.convertAndSend(LOBBY + session.getId(), "close");
                 session.close();
             }
         } catch (Exception e) {
