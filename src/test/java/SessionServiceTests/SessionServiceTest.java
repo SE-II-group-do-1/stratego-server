@@ -1,6 +1,7 @@
 package SessionServiceTests;
 
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,11 @@ class SessionServiceTest {
         session = new SessionService(testPlayer);
 
         boardMock = mock(Board.class);
+    }
+
+    @AfterEach
+    void destroy(){
+        session.close();
     }
 
     @Test
@@ -148,8 +154,6 @@ class SessionServiceTest {
 
     @Test
     void testGetSessionByID(){
-        Player test = new Player("test");
-        SessionService session = new SessionService(test);
         assertEquals(session, SessionService.getSessionByID(session.getId()));
     }
 
@@ -167,9 +171,7 @@ class SessionServiceTest {
 
     @Test
     void testGetSessionByPlayer(){
-        Player test = new Player("test");
-        SessionService session = new SessionService(test);
-        assertEquals(session, SessionService.getSessionByPlayer(test));
+        assertEquals(session, SessionService.getSessionByPlayer(testPlayer));
     }
 
     @Test
