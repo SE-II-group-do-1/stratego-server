@@ -44,7 +44,7 @@ public class SessionService implements SessionServiceI{
      */
     public static boolean assignToSession(Player p){
         for (SessionService session : activeSessions) {
-            if (session.getCurrentGameState() == GameState.WAITING && !session.getPlayerBlue().getUsername().equals(p.getUsername())) {
+            if (session.getPlayerRed() == null && !session.getPlayerBlue().getUsername().equals(p.getUsername())) {
                 session.setPlayerRed(p);
                 return true;
             }

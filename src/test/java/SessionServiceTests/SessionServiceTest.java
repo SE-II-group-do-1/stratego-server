@@ -159,6 +159,13 @@ class SessionServiceTest {
     }
 
     @Test
+    void testAssignToSessionFalse(){
+        Player t = new Player("t");
+        SessionService.assignToSession(redPlayer);
+        assertFalse(SessionService.assignToSession(t));
+    }
+
+    @Test
     void testGetSessionByPlayer(){
         Player test = new Player("test");
         SessionService session = new SessionService(test);
