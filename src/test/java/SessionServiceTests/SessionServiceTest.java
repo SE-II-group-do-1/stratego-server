@@ -12,8 +12,7 @@ import com.example.stratego.session.*;
 
 import java.util.List;
 
-import static com.example.stratego.session.GameState.DONE;
-import static com.example.stratego.session.GameState.INGAME;
+import static com.example.stratego.session.GameState.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -65,8 +64,10 @@ class SessionServiceTest {
     @Test
     void testUpdateBoard(){
         Board b = new Board();
-        b.setField(0,0, new Piece(Rank.GENERAL, Color.BLUE));
         session.setPlayerRed(redPlayer);
+        session.setPlayerBoard(redPlayer.getId(), new Board());
+        session.setPlayerBoard(testPlayer.getId(), new Board());
+        b.setField(0,0, new Piece(Rank.GENERAL, Color.BLUE));
         try {
             session.updateBoard(b, testPlayer.getId());
         } catch (InvalidPlayerTurnException e) {
@@ -114,6 +115,8 @@ class SessionServiceTest {
     @Test
     void testGameStateIngame(){
         session.setPlayerRed(redPlayer);
+        session.setPlayerBoard(testPlayer.getId(), new Board());
+        session.setPlayerBoard(redPlayer.getId(), new Board());
         assertEquals(INGAME, session.getCurrentGameState());
     }
 
