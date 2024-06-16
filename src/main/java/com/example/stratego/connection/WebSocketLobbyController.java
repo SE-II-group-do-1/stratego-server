@@ -74,7 +74,9 @@ public class WebSocketLobbyController {
             SessionService session = SessionService.getSessionByID(lobbyID);
             boolean bothPlayersSet = session.setPlayerBoard(initiator, board);
             if(bothPlayersSet){
-                this.template.convertAndSend(LOBBY + lobbyID, session.getBoard());
+                UpdateMessage update = new UpdateMessage();
+                update.setBoard(session.getBoard());
+                this.template.convertAndSend(LOBBY + lobbyID, update);
             }
 
         } catch (Exception e) {

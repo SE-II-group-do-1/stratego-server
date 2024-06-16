@@ -2,7 +2,6 @@ package com.example.stratego.connection;
 
 import com.example.stratego.session.Board;
 import com.example.stratego.session.Color;
-import com.example.stratego.session.Player;
 
 public class UpdateMessage {
     public Board getBoard() {
