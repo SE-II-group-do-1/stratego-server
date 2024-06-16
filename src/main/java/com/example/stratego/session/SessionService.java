@@ -4,11 +4,8 @@ import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class SessionService implements SessionServiceI{
     private static int nextID = 0;
@@ -40,6 +37,22 @@ public class SessionService implements SessionServiceI{
         nextID++;
     }
 
+    /**
+     * Assigns new players to either a vacant position in a given session or creates a new session.
+     * @param p - the new player to be assigned to a session
+     * @return true if the session assigned to is now full, false if assigned to a new session (session not full)
+     */
+    public static boolean assignToSession(Player p){
+        for (SessionService session : activeSessions) {
+            if (session.getPlayerRed() == null && !session.getPlayerBlue().getUsername().equals(p.getUsername())) {
+                session.setPlayerRed(p);
+                return true;
+            }
+        }
+        new SessionService(p);
+        return false;
+    }
+
 
     /**
      * sets Board setup for both players. returns true if both players submitted board. ready to play.
@@ -59,12 +72,6 @@ public class SessionService implements SessionServiceI{
         return false;
     }
 
-    /**
-     * updates the Player that is currently allowed to make a move.
-     */
-    private void updatePlayerTurn(){
-        this.currentTurn = this.currentTurn == this.playerBlue? this.playerRed : this.playerBlue;
-    }
 
     /**
      * updates Board when Player moves Piece/attacks.
@@ -77,7 +84,8 @@ public class SessionService implements SessionServiceI{
         }
         Player player = getPlayerByID(initiator);
         identifyBoardChange(this.board, board, player);
-        updatePlayerTurn();
+        //update current player turn
+        this.currentTurn = this.currentTurn == this.playerBlue? this.playerRed : this.playerBlue;
     }
 
     /**
@@ -98,15 +106,10 @@ public class SessionService implements SessionServiceI{
                 if(oldPiece != null && newPiece != null){
                     checkOverlap(oldPiece, newPiece, y, x);
                 }
-                else if (oldPiece != null && newPiece == null) {
+                else if (oldPiece != null ) {
                     this.board.setField(y, x, null);
                 }
-                else if(oldPiece == null && newPiece != null){
-                    this.board.setField(y, x, newPiece);
-                }
-                else{
-                    this.board.setField(y, x, null);
-                }
+                else this.board.setField(y, x, newPiece);
             }
         }
     }
@@ -181,6 +184,14 @@ public class SessionService implements SessionServiceI{
 
     public static Player getPlayerByID(int id){
         return activePlayers.stream().filter(p -> p.getId() == id).toList().get(0);
+    }
+
+    public static SessionService getSessionByID(int id){
+        return activeSessions.stream().filter(s -> s.getId() == id).toList().get(0);
+    }
+
+    public static SessionService getSessionByPlayer(Player p){
+        return activeSessions.stream().filter(s -> s.getPlayerBlue() == p || s.getPlayerRed() == p).toList().get(0);
     }
 
     public boolean isClosed(){
