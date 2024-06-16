@@ -17,6 +17,7 @@ public class SessionService implements SessionServiceI{
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
+    private Color winner;
     private HashSet<Integer> setBoard;
 
     /**
@@ -119,6 +120,7 @@ public class SessionService implements SessionServiceI{
 
         if (oldPiece.getRank() == Rank.FLAG) {
             this.board.setField(y,x, newPiece);
+            this.winner = newPiece.getColor();
             this.currentGameState = GameState.DONE;
             return true;
         } else if (oldPiece.getRank() == newPiece.getRank()) {
@@ -205,5 +207,9 @@ public class SessionService implements SessionServiceI{
 
     public Player getCurrentTurn() {
         return this.currentTurn;
+    }
+
+    public Color getWinner(){
+        return this.winner;
     }
 }

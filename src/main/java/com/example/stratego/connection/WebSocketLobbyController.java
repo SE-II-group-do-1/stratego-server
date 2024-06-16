@@ -55,7 +55,10 @@ public class WebSocketLobbyController {
 
             SessionService session = SessionService.getSessionByID(lobbyID);
             session.updateBoard(board, initiator);
-            this.template.convertAndSend(LOBBY + lobbyID, session.getBoard());
+            UpdateMessage update = new UpdateMessage();
+            update.setBoard(session.getBoard());
+            update.setWinner(session.getWinner());
+            this.template.convertAndSend(LOBBY + lobbyID, update);
         } catch (InvalidPlayerTurnException e) {
             sendException(e);
         }

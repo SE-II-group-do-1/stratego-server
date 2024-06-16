@@ -1,6 +1,7 @@
 package com.example.stratego.connection;
 
 import com.example.stratego.session.Board;
+import com.example.stratego.session.Color;
 import com.example.stratego.session.Player;
 
 public class UpdateMessage {
@@ -28,10 +29,10 @@ public class UpdateMessage {
         this.lobbyID = lobbyID;
     }
 
-    public void setWinner(Player winner){
+    public void setWinner(Color winner){
         this.winner = winner;
     }
-    public Player getWinner() {
+    public Color getWinner() {
         return winner;
     }
 
@@ -39,6 +40,6 @@ public class UpdateMessage {
     private int initiator;
     private int lobbyID;
 
-    private Player winner;
+    private Color winner;
 
 }
