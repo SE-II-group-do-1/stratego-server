@@ -115,9 +115,14 @@ public class SessionService implements SessionServiceI{
     }
 
     public boolean checkOverlap(Piece oldPiece, Piece newPiece, int y, int x){
+        if(oldPiece.getColor() == newPiece.getColor()) return false;
+
         if (oldPiece.getRank() == Rank.FLAG) {
-            GamePlaySession.checkFlagCaptured(this.board, newPiece.getColor(), y, x);
+            this.board.setField(y,x, newPiece);
             this.currentGameState = GameState.DONE;
+            return true;
+        } else if (oldPiece.getRank() == newPiece.getRank()) {
+            this.board.setField(y, x, null);
             return true;
         } else {
             //resolve battle
