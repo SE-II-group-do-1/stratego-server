@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class SessionService implements SessionServiceI{
+public class SessionService implements SessionServiceI {
     private static int nextID = 0;
     private static ArrayList<SessionService> activeSessions = new ArrayList<>();
     private static ArrayList<Player> activePlayers = new ArrayList<>();
@@ -26,9 +26,10 @@ public class SessionService implements SessionServiceI{
      * Session Service - manages "lobbys", keeps track of current game/board and associated players.
      * first Player assigned to Session (upon creation of new Session) is assigned Blue Player,
      * following Player is assigned Red. Sessions automatically assigned ID, and added to activeSessions.
+     *
      * @param player1 - first Player. Session cannot be empty!
      */
-    public SessionService(Player player1){
+    public SessionService(Player player1) {
         this.id = nextID;
         this.playerBlue = player1;
         this.currentTurn = player1;
@@ -43,16 +44,17 @@ public class SessionService implements SessionServiceI{
 
     /**
      * sets Board setup for both players. returns true if both players submitted board. ready to play.
-     * @param id - player id that sent their setup
+     *
+     * @param id    - player id that sent their setup
      * @param board - the player's board
      * @return
      */
-    public synchronized boolean setPlayerBoard(int id, Board board){
+    public synchronized boolean setPlayerBoard(int id, Board board) {
         //return false if player not in session
-        if(this.playerBlue.getId() != id && this.playerRed.getId() != id) return false;
+        if (this.playerBlue.getId() != id && this.playerRed.getId() != id) return false;
         this.board.mergeBoard(board);
         this.setBoard.add(id);
-        if(this.setBoard.contains(this.playerBlue.getId()) && this.setBoard.contains(this.playerRed.getId())){
+        if (this.setBoard.contains(this.playerBlue.getId()) && this.setBoard.contains(this.playerRed.getId())) {
             this.currentGameState = GameState.INGAME;
             return true;
         }
@@ -62,13 +64,14 @@ public class SessionService implements SessionServiceI{
     /**
      * updates the Player that is currently allowed to make a move.
      */
-    private void updatePlayerTurn(){
-        this.currentTurn = this.currentTurn == this.playerBlue? this.playerRed : this.playerBlue;
+    private void updatePlayerTurn() {
+        this.currentTurn = this.currentTurn == this.playerBlue ? this.playerRed : this.playerBlue;
     }
 
     /**
      * updates Board when Player moves Piece/attacks.
-     * @param board new board state sent by client
+     *
+     * @param board     new board state sent by client
      * @param initiator player that initiated the turn/play. if incorrect player attempts a turn -> InvalidPlayerException
      */
     public void updateBoard(Board board, int initiator) throws InvalidPlayerTurnException {
@@ -95,26 +98,26 @@ public class SessionService implements SessionServiceI{
                 Piece newPiece = newBoard.getField(y, x);
                 // if new positionment of piece is a null space, simply move it.
 
-                if(oldPiece != null && newPiece != null){
+                if (oldPiece != null && newPiece != null) {
                     checkOverlap(oldPiece, newPiece, y, x);
-                }
-                else if (oldPiece != null && newPiece == null) {
+                } else if (oldPiece != null && newPiece == null) {
                     this.board.setField(y, x, null);
-                }
-                else if(oldPiece == null && newPiece != null){
+                } else if (oldPiece == null && newPiece != null) {
                     this.board.setField(y, x, newPiece);
-                }
-                else{
+                } else {
                     this.board.setField(y, x, null);
                 }
             }
         }
     }
 
-    public boolean checkOverlap(Piece oldPiece, Piece newPiece, int y, int x){
+    public boolean checkOverlap(Piece oldPiece, Piece newPiece, int y, int x) {
         if (oldPiece.getRank() == Rank.FLAG) {
             GamePlaySession.checkFlagCaptured(this.board, newPiece.getColor(), y, x);
             this.currentGameState = GameState.DONE;
+            return true;
+        } else if (oldPiece.getColor() != newPiece.getColor() && oldPiece.getRank() == newPiece.getRank()) {
+            this.board.setField(y, x, null);
             return true;
         } else {
             //resolve battle
@@ -128,30 +131,30 @@ public class SessionService implements SessionServiceI{
         }
     }
 
-    public void close(){
+    public void close() {
         this.currentGameState = GameState.DONE;
         activeSessions.remove(this);
         activePlayers.remove(playerBlue);
         activePlayers.remove(playerRed);
     }
 
-    public Player getPlayerBlue(){
+    public Player getPlayerBlue() {
         return this.playerBlue;
     }
 
-    public Player getPlayerRed(){
+    public Player getPlayerRed() {
         return this.playerRed;
     }
 
-    public void setPlayerRed(Player newPlayer){
+    public void setPlayerRed(Player newPlayer) {
         this.playerRed = newPlayer;
     }
 
-    public Board getBoard(){
+    public Board getBoard() {
         return this.board;
     }
 
-    public int getId(){
+    public int getId() {
         return this.id;
     }
 
@@ -163,27 +166,27 @@ public class SessionService implements SessionServiceI{
         return activeSessions;
     }
 
-    public static Player newPlayer(String username){
+    public static Player newPlayer(String username) {
         Player out = new Player(username);
         activePlayers.add(out);
         return out;
     }
 
-    public static boolean removePlayer(Player toRemove){
-        if(!activePlayers.contains(toRemove)) return false;
+    public static boolean removePlayer(Player toRemove) {
+        if (!activePlayers.contains(toRemove)) return false;
         activePlayers.remove(toRemove);
         return true;
     }
 
-    public static  List<Player> getActivePlayers(){
+    public static List<Player> getActivePlayers() {
         return activePlayers;
     }
 
-    public static Player getPlayerByID(int id){
+    public static Player getPlayerByID(int id) {
         return activePlayers.stream().filter(p -> p.getId() == id).toList().get(0);
     }
 
-    public boolean isClosed(){
+    public boolean isClosed() {
         return this.currentGameState == GameState.DONE;
     }
 

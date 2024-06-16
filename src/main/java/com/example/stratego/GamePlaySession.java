@@ -35,6 +35,9 @@
 
             Boolean outcome = FightOutcomes.getFightOutcome(attacker.getRank(), defender.getRank());
             if (outcome != null) {
+                if(!outcome) {
+                    defender.setVisible(true);
+                }
                 return outcome;
             }
 
