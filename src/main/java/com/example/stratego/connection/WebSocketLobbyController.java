@@ -9,7 +9,6 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
 
-import java.util.List;
 import java.util.logging.Level;
 
 @Controller
@@ -23,31 +22,24 @@ public class WebSocketLobbyController {
         this.template = template;
     }
 
+    private static final String LOBBY = "/topic/lobby-";
 
     @MessageMapping("/join")
     public void joinLobby(String username) {
         logger.log(Level.INFO, "join endpoint reached. received: {0}", username);
         try {
-            //check for active sessions
-            //if one in waiting = add to that lobby, else create new with corresponding topic
-            //usernames must be different
-            //return lobby ID, both players (return only when session full)
+
             Player player = SessionService.newPlayer(username);
             LobbyMessage response = new LobbyMessage();
-            List<SessionService> active = SessionService.getActiveSessions();
-            for (SessionService session : active) {
-                if (session.getCurrentGameState() == GameState.WAITING && !session.getPlayerBlue().getUsername().equals(player.getUsername())) {
-                    session.setPlayerRed(player);
-
-                    response.setBlue(session.getPlayerBlue());
-                    response.setRed(session.getPlayerRed());
-                    response.setLobbyID(session.getId());
-
-                    this.template.convertAndSend("/topic/reply", response);
-                    return;
-                }
+            //only send response (to both players) if lobby is full
+            if(SessionService.assignToSession(player)){
+                SessionService session = SessionService.getSessionByPlayer(player);
+                response.setBlue(session.getPlayerBlue());
+                response.setRed(session.getPlayerRed());
+                response.setLobbyID(session.getId());
+                this.template.convertAndSend("/topic/reply", response);
             }
-            new SessionService(player);
+
         } catch (Exception e) {
             sendException(e);
         }
@@ -61,14 +53,12 @@ public class WebSocketLobbyController {
             Board board = updateMessage.getBoard();
             int lobbyID = updateMessage.getLobbyID();
 
-            SessionService session = SessionService.getActiveSessions().stream()
-                    .filter(s -> s.getId() == lobbyID)
-                    .toList()
-                    .get(0);
-
-
+            SessionService session = SessionService.getSessionByID(lobbyID);
             session.updateBoard(board, initiator);
-            this.template.convertAndSend("/topic/lobby-" + lobbyID, session.getBoard());
+            UpdateMessage update = new UpdateMessage();
+            update.setBoard(session.getBoard());
+            update.setWinner(session.getWinner());
+            this.template.convertAndSend(LOBBY + lobbyID, update);
         } catch (InvalidPlayerTurnException e) {
             sendException(e);
         }
@@ -81,16 +71,12 @@ public class WebSocketLobbyController {
             Board board = updateMessage.getBoard();
             int lobbyID = updateMessage.getLobbyID();
 
-
-            SessionService session = SessionService.getActiveSessions().stream()
-                    .filter(s -> s.getId() == lobbyID)
-                    .toList()
-                    .get(0);
-
-            // Change currentGameState to INGAME, only when both boards are set
+            SessionService session = SessionService.getSessionByID(lobbyID);
             boolean bothPlayersSet = session.setPlayerBoard(initiator, board);
             if(bothPlayersSet){
-                this.template.convertAndSend("/topic/lobby-" + lobbyID, session.getBoard());
+                UpdateMessage update = new UpdateMessage();
+                update.setBoard(session.getBoard());
+                this.template.convertAndSend(LOBBY + lobbyID, update);
             }
 
         } catch (Exception e) {
@@ -104,24 +90,12 @@ public class WebSocketLobbyController {
         logger.log(Level.INFO, "leave endpoint reached. received: {0}", message);        //check if player exists
         //check if in active lobby -> send to lobby that closed
         try {
-            Player player = SessionService.getActivePlayers().stream()
-                    .filter(p -> p.getId() == message)
-                    .toList()
-                    .get(1);
+            Player player = SessionService.getPlayerByID(message);
             if (SessionService.getActivePlayers().contains(player)) {
 
-                int sessionID = SessionService.getActiveSessions().stream()
-                        .filter(s -> s.getPlayerBlue() == player || s.getPlayerRed() == player)
-                        .toList()
-                        .get(1)
-                        .getId();
+                SessionService session = SessionService.getSessionByPlayer(player);
 
-                SessionService session = SessionService.getActiveSessions().stream()
-                        .filter(s -> s.getId() == sessionID)
-                        .toList()
-                        .get(1);
-
-                this.template.convertAndSend("/topic/lobby-" + session.getId(), "close");
+                this.template.convertAndSend(LOBBY + session.getId(), "close");
                 session.close();
             }
         } catch (Exception e) {

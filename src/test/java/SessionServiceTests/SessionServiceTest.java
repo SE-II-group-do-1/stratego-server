@@ -1,22 +1,20 @@
 package SessionServiceTests;
 
-import com.example.stratego.GamePlaySession;
 import com.example.stratego.session.exceptions.InvalidPlayerTurnException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.stratego.session.*;
 
+import java.awt.event.PaintEvent;
 import java.util.List;
 
 import static com.example.stratego.session.GameState.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +33,11 @@ class SessionServiceTest {
         session = new SessionService(testPlayer);
 
         boardMock = mock(Board.class);
+    }
+
+    @AfterEach
+    void destroy(){
+        session.close();
     }
 
     @Test
@@ -77,6 +80,21 @@ class SessionServiceTest {
     }
 
     @Test
+    void testUpdateBoardNewPieceNull(){
+        Board b = new Board();
+        session.setPlayerRed(redPlayer);
+        session.setPlayerBoard(redPlayer.getId(), new Board());
+        session.setPlayerBoard(testPlayer.getId(), new Board());
+        session.getBoard().setField(0,0, new Piece(Rank.GENERAL, Color.BLUE));
+        try {
+            session.updateBoard(b, testPlayer.getId());
+        } catch (InvalidPlayerTurnException e) {
+            throw new RuntimeException(e);
+        }
+        assertNull(session.getBoard().getField(0, 0));
+    }
+
+    @Test
     void testInvalidUpdateBoard(){
         session.setPlayerRed(redPlayer);
         assertThrows(InvalidPlayerTurnException.class,() -> session.updateBoard(new Board(), redPlayer.getId()));
@@ -105,6 +123,14 @@ class SessionServiceTest {
         session.getBoard().setField(1,1, new Piece(Rank.FLAG, Color.RED));
         session.checkOverlap(new Piece(Rank.FLAG, Color.RED), new Piece(Rank.SCOUT, Color.BLUE), 1, 1);
         assertSame(DONE, session.getCurrentGameState());
+    }
+
+    @Test
+    void testCheckOverlapVictoryAgainstPiece() {
+        Piece miner = new Piece(Rank.MINER, Color.BLUE);
+        session.getBoard().setField(1,1, new Piece(Rank.BOMB, Color.RED));
+        session.checkOverlap(new Piece(Rank.BOMB, Color.RED), miner, 1, 1);
+        assertEquals(session.getBoard().getField(1,1),miner);
     }
 
     @Test
@@ -148,6 +174,38 @@ class SessionServiceTest {
         session.close();
         assertTrue(session.isClosed());
         assertFalse(SessionService.getActiveSessions().contains(session));
+    }
+
+    @Test
+    void testGetSessionByID(){
+        assertEquals(session, SessionService.getSessionByID(session.getId()));
+    }
+
+    @Test
+    void testGetSessionByIDFalse(){
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> SessionService.getSessionByID(99));
+    }
+
+    @Test
+    void testAssignToSession(){
+        assertTrue(SessionService.assignToSession(redPlayer));
+    }
+
+    @Test
+    void testAssignToSessionFalse(){
+        Player t = new Player("t");
+        SessionService.assignToSession(redPlayer);
+        assertFalse(SessionService.assignToSession(t));
+    }
+
+    @Test
+    void testGetSessionByPlayer(){
+        assertEquals(session, SessionService.getSessionByPlayer(testPlayer));
+    }
+
+    @Test
+    void testGetSessionByPlayerFalse(){
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> SessionService.getSessionByPlayer(new Player("fake")));
     }
 
     @Test
