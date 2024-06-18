@@ -47,7 +47,7 @@ public class WebSocketLobbyController {
 
     @MessageMapping("/update")
     public void updateGame(UpdateMessage updateMessage) {
-        logger.log(Level.INFO, "update endpoint reached. received: {0}", updateMessage);
+        logger.log(Level.INFO, "update endpoint reached. received: {}", updateMessage);
         try {
             int initiator = updateMessage.getInitiator();
             Board board = updateMessage.getBoard();
