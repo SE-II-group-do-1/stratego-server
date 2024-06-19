@@ -51,8 +51,12 @@ public class WebSocketLobbyController {
             int initiator = updateMessage.getInitiator();
             Board board = updateMessage.getBoard();
             int lobbyID = updateMessage.getLobbyID();
+            boolean cheat = updateMessage.getCheat();
+            boolean check = updateMessage.getCheck();
 
             SessionService session = SessionService.getSessionByID(lobbyID);
+            session.setCheat(initiator, cheat);
+            session.checkCheat(check, initiator);
             session.updateBoard(board, initiator);
             UpdateMessage update = new UpdateMessage();
             update.setBoard(session.getBoard());
