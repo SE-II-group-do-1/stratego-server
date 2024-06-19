@@ -58,6 +58,7 @@ public class WebSocketLobbyController {
             session.setCheat(initiator, cheat);
             session.checkCheat(check, initiator);
             session.updateBoard(board, initiator);
+
             UpdateMessage update = new UpdateMessage();
             update.setBoard(session.getBoard());
             update.setWinner(session.getWinner());

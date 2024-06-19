@@ -61,8 +61,11 @@ public class UpdateMessage {
 
     @JsonProperty("winner")
     private Color winner;
+    @JsonProperty("close")
     private boolean close;
+    @JsonProperty("cheat")
     private boolean cheat;
+    @JsonProperty("check")
     private boolean check;
 
 }
