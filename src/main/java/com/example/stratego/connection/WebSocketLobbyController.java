@@ -8,7 +8,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
-
 import java.util.logging.Level;
 
 @Controller
@@ -94,8 +93,10 @@ public class WebSocketLobbyController {
             if (SessionService.getActivePlayers().contains(player)) {
 
                 SessionService session = SessionService.getSessionByPlayer(player);
+                UpdateMessage u = new UpdateMessage();
+                u.setClose(true);
 
-                this.template.convertAndSend(LOBBY + session.getId(), "close");
+                this.template.convertAndSend(LOBBY + session.getId(), u);
                 session.close();
             }
         } catch (Exception e) {
