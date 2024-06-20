@@ -2,6 +2,7 @@ package com.example.stratego.connection;
 
 import com.example.stratego.session.Board;
 import com.example.stratego.session.Color;
+import com.example.stratego.session.Position;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UpdateMessage {
@@ -67,5 +68,10 @@ public class UpdateMessage {
     private boolean cheat;
     @JsonProperty("check")
     private boolean check;
+
+    @JsonProperty("oldPos")
+    private Position oldPos;
+    @JsonProperty("newPos")
+    private Position newPos;
 
 }
