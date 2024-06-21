@@ -1,8 +1,16 @@
 package com.example.stratego.session;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public class Position {
     int x;
     int y;
+
+    @JsonCreator
+    public Position(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
 
     public int getX() {
         return x;

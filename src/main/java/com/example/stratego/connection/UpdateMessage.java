@@ -69,6 +69,22 @@ public class UpdateMessage {
     @JsonProperty("check")
     private boolean check;
 
+    public Position getOldPos() {
+        return oldPos;
+    }
+
+    public void setOldPos(Position oldPos) {
+        this.oldPos = oldPos;
+    }
+
+    public Position getNewPos() {
+        return newPos;
+    }
+
+    public void setNewPos(Position newPos) {
+        this.newPos = newPos;
+    }
+
     @JsonProperty("oldPos")
     private Position oldPos;
     @JsonProperty("newPos")
