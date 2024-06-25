@@ -209,18 +209,42 @@ class SessionServiceTest {
     }
 
     @Test
-    void testCheckCheat(){
+    void testCheckCheatFalse(){
+        session.setPlayerRed(redPlayer);
+        session.checkCheat(false, redPlayer.getId());
+        assertNull(session.getWinner());
+    }
+
+    @Test
+    void testCheckCheatRedTrue(){
         session.setPlayerRed(redPlayer);
         session.setCheat(redPlayer.getId(), true);
         session.checkCheat(true, testPlayer.getId());
         assertTrue(session.getWinner().equals(Color.BLUE));
     }
 
-    void testCheckCheatFalse(){
+    @Test
+    void testCheckCheatRedFalse(){
         session.setPlayerRed(redPlayer);
         session.setCheat(redPlayer.getId(), false);
         session.checkCheat(true, testPlayer.getId());
         assertTrue(session.getWinner().equals(Color.RED));
+    }
+
+    @Test
+    void testCheckCheatBlueTrue(){
+        session.setPlayerRed(redPlayer);
+        session.setCheat(testPlayer.getId(), true);
+        session.checkCheat(true, redPlayer.getId());
+        assertTrue(session.getWinner().equals(Color.RED));
+    }
+
+    @Test
+    void testCheckCheatBlueFalse(){
+        session.setPlayerRed(redPlayer);
+        session.setCheat(testPlayer.getId(), false);
+        session.checkCheat(true, redPlayer.getId());
+        assertTrue(session.getWinner().equals(Color.BLUE));
     }
 
     @Test
