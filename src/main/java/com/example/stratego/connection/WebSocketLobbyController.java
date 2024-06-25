@@ -8,7 +8,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
-
 import java.util.logging.Level;
 
 @Controller
@@ -52,10 +51,17 @@ public class WebSocketLobbyController {
             int initiator = updateMessage.getInitiator();
             Board board = updateMessage.getBoard();
             int lobbyID = updateMessage.getLobbyID();
+            boolean cheat = updateMessage.getCheat();
+            boolean check = updateMessage.getCheck();
 
             SessionService session = SessionService.getSessionByID(lobbyID);
+            session.setCheat(initiator, cheat);
+            session.checkCheat(check, initiator);
             session.updateBoard(board, initiator);
-            this.template.convertAndSend(LOBBY + lobbyID, session.getBoard());
+
+            updateMessage.setBoard(session.getBoard());
+            updateMessage.setWinner(session.getWinner());
+            this.template.convertAndSend(LOBBY + lobbyID, updateMessage);
         } catch (InvalidPlayerTurnException e) {
             sendException(e);
         }
@@ -71,7 +77,11 @@ public class WebSocketLobbyController {
             SessionService session = SessionService.getSessionByID(lobbyID);
             boolean bothPlayersSet = session.setPlayerBoard(initiator, board);
             if(bothPlayersSet){
-                this.template.convertAndSend(LOBBY + lobbyID, session.getBoard());
+                UpdateMessage update = new UpdateMessage();
+                update.setBoard(session.getBoard());
+                update.setOldPos(new Position(-1,-1));
+                update.setNewPos(new Position(-1,-1));
+                this.template.convertAndSend(LOBBY + lobbyID, update);
             }
 
         } catch (Exception e) {
@@ -89,8 +99,10 @@ public class WebSocketLobbyController {
             if (SessionService.getActivePlayers().contains(player)) {
 
                 SessionService session = SessionService.getSessionByPlayer(player);
+                UpdateMessage u = new UpdateMessage();
+                u.setClose(true);
 
-                this.template.convertAndSend(LOBBY + session.getId(), "close");
+                this.template.convertAndSend(LOBBY + session.getId(), u);
                 session.close();
             }
         } catch (Exception e) {

@@ -17,7 +17,11 @@ public class SessionService implements SessionServiceI{
     private Board board;
     private GameState currentGameState;
     private Player currentTurn;
+    private Color winner;
     private HashSet<Integer> setBoard;
+
+    private boolean redCheat = false;
+    private boolean blueCheat = false;
 
     /**
      * Session Service - manages "lobbys", keeps track of current game/board and associated players.
@@ -72,6 +76,42 @@ public class SessionService implements SessionServiceI{
         return false;
     }
 
+    /**
+     * Sets the cheat-status of the initiator
+     * @param initiator - player that sent message
+     * @param cheat - true/false
+     */
+    public void setCheat(int initiator, boolean cheat){
+        Player p = getPlayerByID(initiator);
+        if(p.equals(playerBlue)){
+            blueCheat = cheat;
+            return;
+        }
+        redCheat = cheat;
+    }
+
+    /**
+     * is called when a player decides to check if the other is cheating
+     * @param check - true/false if player decides to check on opponent (risky - missing causes opponent to win, if opponenet was cheating, you win)
+     * @param initiator - player
+     */
+    public void checkCheat(boolean check, int initiator){
+        if(!check) return;
+        Player p = getPlayerByID(initiator);
+        if(p.equals(playerBlue) && redCheat){
+            this.winner = Color.BLUE;
+        }
+        else if(p.equals(playerBlue) && !redCheat){
+            this.winner = Color.RED;
+        }
+        else if(p.equals(playerRed) && blueCheat){
+            this.winner = Color.RED;
+        }
+        else if(p.equals(playerRed) && !blueCheat){
+            this.winner = Color.BLUE;
+        }
+    }
+
 
     /**
      * updates Board when Player moves Piece/attacks.
@@ -115,9 +155,15 @@ public class SessionService implements SessionServiceI{
     }
 
     public boolean checkOverlap(Piece oldPiece, Piece newPiece, int y, int x){
+        if(oldPiece.getColor() == newPiece.getColor()) return false;
+
         if (oldPiece.getRank() == Rank.FLAG) {
-            GamePlaySession.checkFlagCaptured(this.board, newPiece.getColor(), y, x);
+            this.board.setField(y,x, newPiece);
+            this.winner = newPiece.getColor();
             this.currentGameState = GameState.DONE;
+            return true;
+        } else if (oldPiece.getRank() == newPiece.getRank()) {
+            this.board.setField(y, x, null);
             return true;
         } else {
             //resolve battle
@@ -200,5 +246,9 @@ public class SessionService implements SessionServiceI{
 
     public Player getCurrentTurn() {
         return this.currentTurn;
+    }
+
+    public Color getWinner(){
+        return this.winner;
     }
 }
