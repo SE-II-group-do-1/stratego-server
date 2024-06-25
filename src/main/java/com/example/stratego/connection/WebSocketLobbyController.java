@@ -59,10 +59,9 @@ public class WebSocketLobbyController {
             session.checkCheat(check, initiator);
             session.updateBoard(board, initiator);
 
-            UpdateMessage update = new UpdateMessage();
-            update.setBoard(session.getBoard());
-            update.setWinner(session.getWinner());
-            this.template.convertAndSend(LOBBY + lobbyID, update);
+            updateMessage.setBoard(session.getBoard());
+            updateMessage.setWinner(session.getWinner());
+            this.template.convertAndSend(LOBBY + lobbyID, updateMessage);
         } catch (InvalidPlayerTurnException e) {
             sendException(e);
         }
@@ -80,6 +79,8 @@ public class WebSocketLobbyController {
             if(bothPlayersSet){
                 UpdateMessage update = new UpdateMessage();
                 update.setBoard(session.getBoard());
+                update.setOldPos(new Position(-1,-1));
+                update.setNewPos(new Position(-1,-1));
                 this.template.convertAndSend(LOBBY + lobbyID, update);
             }
 
