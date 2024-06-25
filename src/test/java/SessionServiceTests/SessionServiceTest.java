@@ -28,8 +28,8 @@ class SessionServiceTest {
     @BeforeEach
     void setup(){
         //board = new Board();
-        testPlayer = new Player( "blue");
-        redPlayer = new Player("red");
+        testPlayer = SessionService.newPlayer( "blue");
+        redPlayer = SessionService.newPlayer("red");
         session = new SessionService(testPlayer);
 
         boardMock = mock(Board.class);
@@ -206,6 +206,21 @@ class SessionServiceTest {
     @Test
     void testGetSessionByPlayerFalse(){
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> SessionService.getSessionByPlayer(new Player("fake")));
+    }
+
+    @Test
+    void testCheckCheat(){
+        session.setPlayerRed(redPlayer);
+        session.setCheat(redPlayer.getId(), true);
+        session.checkCheat(true, testPlayer.getId());
+        assertTrue(session.getWinner().equals(Color.BLUE));
+    }
+
+    void testCheckCheatFalse(){
+        session.setPlayerRed(redPlayer);
+        session.setCheat(redPlayer.getId(), false);
+        session.checkCheat(true, testPlayer.getId());
+        assertTrue(session.getWinner().equals(Color.RED));
     }
 
     @Test
